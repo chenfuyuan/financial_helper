@@ -1,14 +1,12 @@
 """TuShare 原始行 → StockBasic 映射。"""
 
-from datetime import UTC, date, datetime
+from datetime import date
 from typing import Any
 
-from app.modules.data_engineering.domain.entities.stock_basic import (
-    DataSource,
-    StockBasic,
-    StockStatus,
-)
+from app.modules.data_engineering.domain.entities.stock_basic import StockBasic
 from app.modules.data_engineering.domain.exceptions import ExternalStockServiceError
+from app.modules.data_engineering.domain.value_objects.data_source import DataSource
+from app.modules.data_engineering.domain.value_objects.stock_status import StockStatus
 
 
 def _parse_list_date(value: Any) -> date:
@@ -53,12 +51,8 @@ class TuShareStockBasicMapper:
         industry = row.get("industry") or ""
         list_date = _parse_list_date(row.get("list_date"))
         status = _parse_list_status(row.get("list_status"))
-        now = datetime.now(UTC)
         return StockBasic(
             id=None,
-            created_at=now,
-            updated_at=now,
-            version=0,
             source=DataSource.TUSHARE,
             third_code=str(ts_code).strip(),
             symbol=str(symbol).strip(),

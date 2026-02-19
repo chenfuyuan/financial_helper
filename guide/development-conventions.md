@@ -2,26 +2,67 @@
 
 本文档为 AI 与开发者在**进行代码开发时**使用的规范。非开发对话无需加载。编辑 src 时代入 **`guide/architecture.md`**，编辑 tests 时代入 **`guide/testing.md`**。
 
-## 架构与约束
+## 核心原则
 
-分层：`interfaces → application → domain ← infrastructure`。分层依赖、Domain/Application/Infrastructure/Interfaces 编码规则、单一职责与事务边界等见 **`guide/architecture.md`**。
+### 1. 架构优先
+- **严格分层**：`interfaces → application → domain ← infrastructure`
+- **依赖方向**：外层依赖内层，内层不依赖外层
+- **领域纯净**：domain 层不 import 任何其他层
+
+### 2. DDD 建模规范
+- **聚合根**：继承 `AggregateRoot[ID]`，拥有独立 Repository
+- **实体**：继承 `Entity[ID]`，仅包含业务属性，不含基础设施字段（created_at/updated_at/version）
+- **值对象**：继承 `ValueObject`，不可变（`@dataclass(frozen=True)`），含 `_validate()`
+- **领域事件**：继承 `DomainEvent`，由聚合根发布
+- **领域异常**：继承 `DomainException`，不直接继承 `Exception`
+
+### 3. 事务边界
+- **Application 层控制事务**：Handler 接收 UoW，在 `handle()` 内 `await uow.commit()`
+- **Interfaces 层不控制事务**：Router 只做 HTTP 编排，不调用 `uow.commit()`
 
 ## 目录结构
 
 ```
 src/app/
-├── shared_kernel/     # 共用基类（domain / application / infrastructure）
-├── modules/<name>/    # 业务模块
-│   ├── domain/        # entities/, gateways/, repositories/; exceptions.py 可选
-│   ├── application/   # commands/, queries/
-│   ├── infrastructure/# gateways/（含 mappers/）, repositories/（含 mappers/）, models/
-│   └── interfaces/    # api/, dependencies.py（模块专属依赖）
-└── interfaces/        # main.py, dependencies.py（跨模块共享依赖）
+├── shared_kernel/                    # 跨模块共享构建块
+│   ├── domain/                       # 领域基类（aggregate_root, entity, value_object, domain_event, exception, repository, unit_of_work）
+│   ├── application/                  # 应用层基类（command, command_handler, query, query_handler, mediator, event_bus, dto）
+│   └── infrastructure/               # 基础设施基类（database, sqlalchemy_repository, sqlalchemy_unit_of_work, logging）
+│
+├── modules/<module_name>/             # 业务模块
+│   ├── domain/                       # 领域层
+│   │   ├── entities/                 # 聚合根/实体（一文件一概念）
+│   │   ├── value_objects/            # 值对象
+│   │   ├── gateways/                 # 外部服务接口
+│   │   ├── repositories/             # 持久化接口
+│   │   ├── services/                 # 领域服务
+│   │   ├── events/                   # 领域事件定义
+│   │   └── exceptions.py             # 领域异常
+│   ├── application/                  # 应用层
+│   │   ├── commands/                 # 命令与处理器（Handler 路径须含 `.commands.`）
+│   │   ├── queries/                  # 查询与处理器（Handler 路径须含 `.queries.`）
+│   │   └── events/                   # 事件处理器
+│   ├── infrastructure/               # 基础设施层
+│   │   ├── models/                   # ORM 模型
+│   │   ├── gateways/                 # 外部服务实现
+│   │   │   └── mappers/              # 数据映射（API 响应 → 领域模型）
+│   │   ├── repositories/             # 仓储实现
+│   │   │   └── mappers/              # 持久化映射（领域模型 → 持久化）
+│   │   ├── cache/                    # 缓存实现
+│   │   └── tasks/                    # 异步任务
+│   └── interfaces/                   # 接口层
+│       ├── api/                      # HTTP 路由
+│       ├── consumers/                # MQ 消费者
+│       ├── schedulers/               # 定时任务
+│       └── dependencies.py           # 模块内 DI
+│
+└── interfaces/                        # 全局接口层
+    ├── main.py                       # FastAPI 应用
+    ├── dependencies.py               # 跨模块依赖
+    ├── exception_handler.py          # 异常处理
+    ├── middleware.py                 # 中间件
+    └── response.py                   # 响应模型
 ```
-
-- **domain**：entities 一文件一概念；gateways 为外部数据接口，repositories 为持久化接口。
-- **application**：Handler 模块路径须含 `.commands.` 或 `.queries.`。
-- **infrastructure**：gateways/mappers 做「API 响应 → 领域模型」；repositories/mappers 做「领域模型 → 持久化」。新模块与 data_engineering 对齐。
 
 ## 依赖注入规范
 
@@ -29,19 +70,11 @@ src/app/
 - **模块内专属依赖**（本模块的 Repository、Gateway、Handler 的组装）：放在各模块自己的 `modules/<name>/interfaces/dependencies.py` 中，通过 `Depends(get_uow)` 等从全局获取共享依赖后，构造并返回本模块的 Handler 或所需实例。
 - **Router**：只通过 `Depends(...)` 注入全局或模块提供的依赖，不在路由函数内手写 `new` Gateway/Repository/Handler。
 
-## 命令
-
-```bash
-make dev   make test   make lint   make format   make type-check
-make ci    # 提交前必跑（lint + format check + mypy + architecture-check + pytest）
-make architecture-check   make migrate   make migrate-create msg="描述"
-make new-module name=<模块名>   make docker-up
-```
-
 ## 数据库设计规范
 
-- **基础字段**（必含）：id、created_at、updated_at、version。业务表在此基础上增加业务列；模型与迁移均显式包含上述四类。
-- **字段顺序**：`id` 最前，业务字段居中，`created_at` / `updated_at` / `version` 最后。模型属性顺序与 Alembic `create_table` / `add_column` 列顺序一致。
+- **ORM 模型字段**：id 最前，业务字段居中，审计字段（created_at/updated_at/version）最后。
+- **领域实体字段**：仅包含业务属性，不包含审计字段（created_at/updated_at/version），这些由 ORM 模型和数据库维护。
+- **字段顺序**：模型属性顺序与 Alembic `create_table` / `add_column` 列顺序一致。
 
 ## 架构守护
 

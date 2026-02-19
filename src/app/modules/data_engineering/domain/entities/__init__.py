@@ -1,5 +1,5 @@
-"""领域实体与值对象。"""
+"""领域实体。"""
 
-from .stock_basic import DataSource, StockBasic, StockStatus
+from .stock_basic import StockBasic
 
-__all__ = ["DataSource", "StockBasic", "StockStatus"]
+__all__ = ["StockBasic"]

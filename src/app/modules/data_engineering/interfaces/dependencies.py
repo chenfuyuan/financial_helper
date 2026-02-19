@@ -20,4 +20,4 @@ def get_sync_stock_basic_handler(
     """构造 SyncStockBasic 的 Handler，供 /sync 等路由注入。"""
     gateway = TuShareStockGateway(token=settings.TUSHARE_TOKEN)
     repository = SqlAlchemyStockBasicRepository(uow.session)
-    return SyncStockBasicHandler(gateway=gateway, repository=repository)
+    return SyncStockBasicHandler(gateway=gateway, repository=repository, uow=uow)

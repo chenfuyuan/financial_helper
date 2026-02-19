@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.data_engineering.domain.entities.stock_basic import StockBasic
 from app.modules.data_engineering.domain.repositories import StockBasicRepository
+from app.shared_kernel.infrastructure.sqlalchemy_repository import SqlAlchemyRepository
 
 from ..models.stock_basic_model import StockBasicModel
 from .mappers.stock_basic_persistence_mapper import StockBasicPersistenceMapper
@@ -20,7 +21,9 @@ _COLUMNS_PER_ROW = 9
 UPSERT_BATCH_SIZE = min(1000, _ASYNCPG_MAX_PARAMS // _COLUMNS_PER_ROW // 2)
 
 
-class SqlAlchemyStockBasicRepository(StockBasicRepository):
+class SqlAlchemyStockBasicRepository(
+    SqlAlchemyRepository[StockBasic, int | None], StockBasicRepository
+):
     """使用 ON CONFLICT (source, third_code) DO UPDATE 的批量 upsert。"""
 
     def __init__(
@@ -28,8 +31,28 @@ class SqlAlchemyStockBasicRepository(StockBasicRepository):
         session: AsyncSession,
         mapper: StockBasicPersistenceMapper | None = None,
     ) -> None:
-        self._session = session
+        super().__init__(session, StockBasicModel)
         self._mapper = mapper or StockBasicPersistenceMapper()
+
+    def _to_entity(self, model: Any) -> StockBasic:
+        """ORM Model → 领域聚合根。"""
+        return StockBasic(
+            id=model.id,
+            source=model.source,
+            third_code=model.third_code,
+            symbol=model.symbol,
+            name=model.name,
+            market=model.market,
+            area=model.area,
+            industry=model.industry,
+            list_date=model.list_date,
+            status=model.status,
+        )
+
+    def _to_model(self, entity: StockBasic) -> Any:
+        """领域聚合根 → ORM Model。"""
+        row = self._mapper.to_row(entity)
+        return StockBasicModel(id=entity.id, **row)
 
     async def upsert_many(self, stocks: list[StockBasic]) -> None:
         if not stocks:

@@ -1,16 +1,14 @@
 """仓储集成测试：首次插入、同 (source, third_code) 再次更新、幂等性断言。"""
 
-from datetime import date, datetime
+from datetime import date
 
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.modules.data_engineering.domain.entities.stock_basic import (
-    DataSource,
-    StockBasic,
-    StockStatus,
-)
+from app.modules.data_engineering.domain.entities.stock_basic import StockBasic
+from app.modules.data_engineering.domain.value_objects.data_source import DataSource
+from app.modules.data_engineering.domain.value_objects.stock_status import StockStatus
 from app.modules.data_engineering.infrastructure.models.stock_basic_model import StockBasicModel
 from app.modules.data_engineering.infrastructure.repositories import (
     SqlAlchemyStockBasicRepository,
@@ -35,9 +33,6 @@ def _make_stock(
 ) -> StockBasic:
     return StockBasic(
         id=None,
-        created_at=datetime(2020, 1, 1),
-        updated_at=datetime(2020, 1, 1),
-        version=0,
         source=DataSource.TUSHARE,
         third_code=third_code,
         symbol="000001",

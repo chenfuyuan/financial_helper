@@ -1,23 +1,18 @@
 """POST /data-engineering/stock-basic/sync 接口测试：成功返回 synced_count，网关异常返回 5xx。"""
 
-from datetime import date, datetime
+from datetime import date
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from app.modules.data_engineering.domain.entities.stock_basic import (
-    DataSource,
-    StockBasic,
-    StockStatus,
-)
+from app.modules.data_engineering.domain.entities.stock_basic import StockBasic
+from app.modules.data_engineering.domain.value_objects.data_source import DataSource
+from app.modules.data_engineering.domain.value_objects.stock_status import StockStatus
 
 
 def _make_stock(third_code: str = "000001.SZ", name: str = "平安银行") -> StockBasic:
     return StockBasic(
         id=None,
-        created_at=datetime(2020, 1, 1),
-        updated_at=datetime(2020, 1, 1),
-        version=0,
         source=DataSource.TUSHARE,
         third_code=third_code,
         symbol="000001",

@@ -1,12 +1,10 @@
-"""单元测试：StockBasic 实体与 StockStatus、DataSource 枚举。"""
+"""单元测试：StockBasic 聚合根与 StockStatus、DataSource 枚举。"""
 
-from datetime import date, datetime
+from datetime import date
 
-from app.modules.data_engineering.domain.entities.stock_basic import (
-    DataSource,
-    StockBasic,
-    StockStatus,
-)
+from app.modules.data_engineering.domain.entities.stock_basic import StockBasic
+from app.modules.data_engineering.domain.value_objects.data_source import DataSource
+from app.modules.data_engineering.domain.value_objects.stock_status import StockStatus
 
 
 class TestStockStatus:
@@ -29,9 +27,6 @@ class TestStockBasic:
     def test_entity_has_required_business_fields(self) -> None:
         stock = StockBasic(
             id=None,
-            created_at=datetime(2020, 1, 1),
-            updated_at=datetime(2020, 1, 1),
-            version=0,
             source=DataSource.TUSHARE,
             third_code="000001.SZ",
             symbol="000001",
@@ -52,9 +47,6 @@ class TestStockBasic:
         list_date = date(2015, 6, 1)
         stock = StockBasic(
             id=None,
-            created_at=datetime(2020, 1, 1),
-            updated_at=datetime(2020, 1, 1),
-            version=0,
             source=DataSource.TUSHARE,
             third_code="600000.SH",
             symbol="600000",
@@ -71,9 +63,6 @@ class TestStockBasic:
     def test_status_is_stock_status_enum(self) -> None:
         stock = StockBasic(
             id=None,
-            created_at=datetime(2020, 1, 1),
-            updated_at=datetime(2020, 1, 1),
-            version=0,
             source=DataSource.TUSHARE,
             third_code="000001.SZ",
             symbol="000001",
