@@ -4,6 +4,26 @@
 
 ---
 
+## AI 编程使用指南
+
+### 必读前提
+在编写代码前请确保了解：
+- **CLAUDE.md** - 项目概览
+- **docs/plans/financial-helper/02-dependencies.md** - 模块边界约束
+- **ddd-best-practices.md** - DDD 分层规则
+
+### 架构检查失败时
+1. 查看本文档「检查失败时如何修复」章节
+2. 确保依赖方向必须是：`interfaces → application → domain ← infrastructure`
+3. 检查 Handler 是否在正确目录下
+4. 确保实体继承 Entity/AggregateRoot，值对象继承 ValueObject
+
+### 金融助手模块参考
+金融助手系统的 9 个模块都受架构守护约束，实现时请参考：
+- **docs/plans/financial-helper/modules/*.md - 各模块设计文档
+
+---
+
 ## 日常使用
 
 ### 提交前
@@ -94,7 +114,4 @@ containers = [
 ---
 
 ## 相关文档
-
-- [架构守护设计](plans/2026-02-19-architecture-guard-design.md)
-- [架构守护实施计划](plans/2026-02-19-architecture-guard-implementation.md)
 - [CLAUDE.md](../CLAUDE.md) — 项目概览与「架构守护」小节

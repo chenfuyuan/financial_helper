@@ -4,6 +4,28 @@
 
 ---
 
+## AI 编程使用指南
+
+在开始任何开发工作前，请先阅读本文档了解 DDD 架构规范。
+
+### 相关文档索引
+- **CLAUDE.md** - 项目概览，必读
+- **docs/plans/financial-helper/README.md** - 金融助手系统设计文档索引
+- **architecture-guard-usage.md** - 架构守护使用指南
+- **scaffold-new-module.md** - 新模块脚手架使用指南
+
+### 常见场景参考
+| 场景 | 阅读章节 |
+|------|---------|
+| 创建实体/值对象 | 2. Domain 层 |
+| 编写 Command/Query | 3. Application 层 |
+| 实现仓储 | 4. Infrastructure 层 |
+| 编写 API 路由 | 5. Interfaces 层 |
+| 检查常见错误 | 6. 常见反模式 |
+| 新模块开发流程 | 7. 新模块开发速查 |
+
+---
+
 ## 1. 分层架构
 
 ### 依赖规则

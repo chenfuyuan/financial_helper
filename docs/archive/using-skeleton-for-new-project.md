@@ -2,6 +2,19 @@
 
 本文说明如何将本 DDD + FastAPI 骨架作为**新项目**的起点（拥有独立的 git 历史与远程仓库）。是否需要重新初始化 git，取决于你获取代码的方式。
 
+---
+
+## AI 编程提示
+
+**注意**：本项目已经是基于骨架创建的金融助手系统，不是通用骨架。
+
+如果你想基于本项目创建新项目，请按本文档操作。
+
+### 金融助手系统文档
+- **CLAUDE.md** - 项目概览
+- **docs/plans/financial-helper/README.md** - 金融助手系统设计文档
+- **docs/plans/financial-helper/modules/*.md - 各模块详细设计
+
 ## 方式一：GitHub 模板仓库（推荐，无需手动 re-init）
 
 1. 在 GitHub 上为本仓库开启 **Template repository**：Settings → General → 勾选 **Template repository**。

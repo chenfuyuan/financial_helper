@@ -2,9 +2,43 @@
 
 ## 项目
 
-DDD + 整洁架构的 FastAPI WebAPI 项目骨架。通用模板，不绑定特定业务。
+**金融助手系统** - 基于 DDD + 整洁架构的 A 股投资顾问系统，提供数据抓取、LLM 分析、知识图谱、每日复盘等核心功能。
 
-**技术栈:** Python 3.11, FastAPI, SQLAlchemy (async + asyncpg), PostgreSQL, Alembic, pydantic-settings, structlog, pytest
+**技术栈:** Python 3.11, FastAPI, SQLAlchemy (async + asyncpg), PostgreSQL, InfluxDB, Neo4j, Redis, Celery, LangGraph, Elasticsearch, Alembic, pydantic-settings, structlog, pytest
+
+## 设计文档索引
+
+在开始任何开发工作前，请先查阅相关设计文档。文档已按模块化拆分，按需读取：
+
+### 核心文档（必读）
+- `docs/plans/financial-helper/README.md` - 设计文档总索引 + AI 使用指南
+- `docs/plans/financial-helper/01-overview.md` - 项目概述、技术栈、整体架构、数据流
+- `docs/plans/financial-helper/02-dependencies.md` - 依赖关系图、模块边界约束
+
+### 模块文档（按需要读取）
+实现特定模块时，请读取对应的模块设计文档：
+- `docs/plans/financial-helper/modules/foundation.md` - 基础设施层
+- `docs/plans/financial-helper/modules/data-engineering.md` - 数据工程层
+- `docs/plans/financial-helper/modules/llm-gateway.md` - LLM 网关层
+- `docs/plans/financial-helper/modules/knowledge-center.md` - 知识中心
+- `docs/plans/financial-helper/modules/market-insight.md` - 市场洞察
+- `docs/plans/financial-helper/modules/coordinator.md` - 协调器（LangGraph 流程编排）
+- `docs/plans/financial-helper/modules/research.md` - 研究模块
+- `docs/plans/financial-helper/modules/debate.md` - 辩论模块
+- `docs/plans/financial-helper/modules/judge.md` - 决策模块
+
+### 横向关注点（按需要读取）
+- `docs/plans/financial-helper/cross-cutting/error-handling.md` - 错误处理策略
+- `docs/plans/financial-helper/cross-cutting/testing.md` - 测试策略
+- `docs/plans/financial-helper/cross-cutting/security.md` - 安全设计
+- `docs/plans/financial-helper/cross-cutting/performance.md` - 性能优化策略
+- `docs/plans/financial-helper/cross-cutting/operations.md` - 运维与监控
+
+### AI 工作流建议
+1. **实现新功能**：先读对应模块文档 + 02-dependencies.md + 01-overview.md
+2. **编写测试**：先读 cross-cutting/testing.md + 对应模块文档
+3. **优化性能**：先读 cross-cutting/performance.md
+4. **架构检查**：先读 02-dependencies.md 了解约束规则
 
 ## 架构
 
@@ -83,7 +117,6 @@ make ci
 
 ## 参考文档
 
-- `docs/plans/` — 设计文档和实施计划
-- `docs/scaffold-new-module.md` — 新模块脚手架（make new-module）
-- `docs/using-skeleton-for-new-project.md` — 从骨架创建新项目（Git 初始化与两种用法）
+- `docs/plans/financial-helper/` — 金融助手系统设计文档（已模块化拆分）
+- `docs/plans/financial-helper/README.md` — 设计文档总索引（必读）
 - `.cursor/rules/` — Cursor 分场景规则（架构、测试、工作流）

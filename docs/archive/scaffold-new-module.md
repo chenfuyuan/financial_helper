@@ -2,6 +2,30 @@
 
 从 `example` 模块复制并重命名，快速生成新的限界上下文模块（含 domain / application / infrastructure / interfaces 与对应测试）。
 
+---
+
+## AI 编程使用指南
+
+### 创建金融助手系统新模块前
+请先阅读：
+1. **docs/plans/financial-helper/README.md** - 设计文档总索引
+2. **docs/plans/financial-helper/02-dependencies.md** - 模块边界约束
+3. **docs/plans/financial-helper/modules/*.md** - 参考现有模块设计
+
+### 金融助手系统现有模块
+本项目已有 9 个业务模块，无需重复创建：
+- foundation - 基础设施层
+- data_engineering - 数据工程层
+- llm_gateway - LLM 网关层
+- knowledge_center - 知识中心
+- market_insight - 市场洞察
+- coordinator - 协调器
+- research - 研究模块
+- debate - 辩论模块
+- judge - 决策模块
+
+如需实现以上模块，请参考对应的设计文档，不要使用脚手架重新创建。
+
 ## 用法
 
 ```bash
