@@ -17,15 +17,8 @@ class StockBasicModel(Base):
         UniqueConstraint("source", "third_code", name="uq_stock_basic_source_third_code"),
     )
 
+    # 字段顺序：id 最前，业务字段居中，公用字段最后（便于查询结果查看）
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
-    )
-    version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
-
     source: Mapped[str] = mapped_column(String(32), nullable=False)
     third_code: Mapped[str] = mapped_column(String(32), nullable=False)
     symbol: Mapped[str] = mapped_column(String(32), nullable=False)
@@ -35,3 +28,10 @@ class StockBasicModel(Base):
     industry: Mapped[str] = mapped_column(String(64), nullable=False)
     list_date: Mapped[date] = mapped_column(Date, nullable=False)
     status: Mapped[str] = mapped_column(String(8), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+    version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)

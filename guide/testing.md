@@ -1,9 +1,6 @@
----
-description: 测试编写规则
-globs: tests/**/*.py
----
-
 # 测试规则
+
+编辑 `tests/**/*.py` 时参考。与 IDE 无关，任何 AI 或编辑器均可按需读取。
 
 ## 目录
 

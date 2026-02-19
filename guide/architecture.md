@@ -1,9 +1,6 @@
----
-description: DDD + 整洁架构编码规则
-globs: src/**/*.py
----
-
 # 架构规则
+
+编辑 `src/**/*.py` 时参考。与 IDE 无关，任何 AI 或编辑器均可按需读取。
 
 ## 分层依赖（只允许向内依赖）
 
@@ -33,7 +30,8 @@ interfaces → application → domain ← infrastructure
 
 ## Infrastructure 层
 
-- SqlAlchemy Model: 继承 `Base`，放在 `models/` 目录
+- SqlAlchemy Model: 继承 `Base`，放在 `models/` 目录；表字段顺序：id 最前，业务字段居中，created_at/updated_at/version 最后
+- Alembic 迁移：`create_table` / `add_column` 的列顺序与模型一致（同上）
 - Repository 实现: 继承 `SqlAlchemyRepository` + 具体模块仓储接口
 - 必须实现 `_to_entity()` 和 `_to_model()` 转换方法
 
