@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     APP_PORT: int = 8000
 
     DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost:5432/financial_helper"
+    TUSHARE_TOKEN: str = ""
 
     CORS_ORIGINS: list[str] = ["http://localhost:3000"]
     LOG_LEVEL: str = "DEBUG"

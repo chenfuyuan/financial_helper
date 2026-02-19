@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 from app.config import settings
 
 # Import all models so Alembic can detect them
+from app.modules.data_engineering.infrastructure.models.stock_basic_model import StockBasicModel  # noqa: F401
 from app.modules.example.infrastructure.models.note_model import NoteModel  # noqa: F401
 from app.shared_kernel.infrastructure.database import Base
 

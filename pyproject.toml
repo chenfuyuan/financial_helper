@@ -22,6 +22,7 @@ dependencies = [
   "pydantic-settings>=2.1.0",
   "structlog>=24.1.0",
   "python-dotenv>=1.0.0",
+  "tushare>=1.2.0",
 ]
 
 [project.optional-dependencies]
@@ -71,4 +72,5 @@ layers = [
 containers = [
     "app.shared_kernel",
     "app.modules.example",
+    "app.modules.data_engineering",
 ]

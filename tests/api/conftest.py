@@ -36,6 +36,7 @@ def _register_handlers(mediator, db):
 @pytest.fixture
 async def api_client():
     """FastAPI 应用 + 内存 SQLite，可调 HTTP 接口。不跑真实 lifespan，直接注入 db/mediator。"""
+    import app.modules.data_engineering.infrastructure.models  # noqa: F401
     import app.modules.example.infrastructure.models  # noqa: F401
     from app.interfaces import main
     from app.shared_kernel.application.mediator import Mediator

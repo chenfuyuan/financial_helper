@@ -20,7 +20,7 @@ type-check: ## Run type checker
 	mypy src/
 
 architecture-check: ## Run architecture guards (import-linter + pytest arch tests)
-	lint-imports
+	PYTHONPATH=src lint-imports
 	python -m pytest tests/architecture/ -v
 
 ci: ## Run same checks as CI (run before push)

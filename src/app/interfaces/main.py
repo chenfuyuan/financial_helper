@@ -14,6 +14,9 @@ from app.interfaces.exception_handler import (
 )
 from app.interfaces.middleware import setup_middleware
 from app.interfaces.response import ApiResponse
+from app.modules.data_engineering.interfaces.api.stock_basic_router import (
+    router as stock_basic_router,
+)
 from app.modules.example.application.commands.create_note import CreateNoteCommand
 from app.modules.example.application.commands.create_note_handler import CreateNoteHandler
 from app.modules.example.application.queries.get_note import GetNoteQuery
@@ -80,6 +83,7 @@ app.add_exception_handler(
 app.add_exception_handler(Exception, general_exception_handler)
 
 app.include_router(note_router, prefix="/api/v1")
+app.include_router(stock_basic_router, prefix="/api/v1")
 
 
 @app.get("/health", response_model=ApiResponse[dict])
