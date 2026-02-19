@@ -4,7 +4,6 @@ import time
 
 from fastapi import APIRouter, Depends
 
-from app.config import settings
 from app.interfaces.dependencies import get_uow
 from app.interfaces.response import ApiResponse
 from app.modules.data_engineering import application, infrastructure  # noqa: F401
@@ -12,10 +11,7 @@ from app.modules.data_engineering.application.commands.sync_stock_basic import S
 from app.modules.data_engineering.application.commands.sync_stock_basic_handler import (
     SyncStockBasicHandler,
 )
-from app.modules.data_engineering.infrastructure.gateways import TuShareStockGateway
-from app.modules.data_engineering.infrastructure.repositories import (
-    SqlAlchemyStockBasicRepository,
-)
+from app.modules.data_engineering.interfaces.dependencies import get_sync_stock_basic_handler
 from app.shared_kernel.infrastructure.sqlalchemy_unit_of_work import SqlAlchemyUnitOfWork
 
 router = APIRouter(prefix="/data-engineering/stock-basic", tags=["data_engineering"])
@@ -24,10 +20,8 @@ router = APIRouter(prefix="/data-engineering/stock-basic", tags=["data_engineeri
 @router.post("/sync", response_model=ApiResponse[dict])
 async def sync_stock_basic(
     uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+    handler: SyncStockBasicHandler = Depends(get_sync_stock_basic_handler),
 ) -> ApiResponse[dict]:
-    gateway = TuShareStockGateway(token=settings.TUSHARE_TOKEN)
-    repository = SqlAlchemyStockBasicRepository(uow.session)
-    handler = SyncStockBasicHandler(gateway=gateway, repository=repository)
     start = time.perf_counter()
     synced_count = await handler.handle(SyncStockBasic())
     await uow.commit()

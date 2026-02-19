@@ -158,7 +158,7 @@
 
 ```yaml
 services:
-  web:
+  api:
     # FastAPI 应用服务
   db:
     # PostgreSQL (业务数据)

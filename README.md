@@ -45,6 +45,8 @@ make migrate
 make dev
 ```
 
+默认 Postgres 端口为 5433，可与本机或其它项目 5432 共存；通过 `POSTGRES_PORT` 可改。API 服务默认映射主机 8000，可通过 `WEB_PORT` 修改（如与其它项目冲突时设 `WEB_PORT=8001`）。
+
 ## 使用本骨架创建新项目
 
 要从本骨架开始一个**新项目**（独立 git 历史与远程），请参阅 **[docs/using-skeleton-for-new-project.md](docs/using-skeleton-for-new-project.md)**（中文）。其中说明：

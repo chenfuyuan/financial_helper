@@ -1,8 +1,10 @@
+name: financial_helper
+
 services:
-  web:
+  api:
     build: .
     ports:
-      - "8000:8000"
+      - "${WEB_PORT:-8000}:8000"
     volumes:
       - ./src:/app/src
     environment:
@@ -18,7 +20,7 @@ services:
   db:
     image: postgres:16-alpine
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password

@@ -37,7 +37,8 @@ interfaces → application → domain ← infrastructure
 
 ## Interfaces 层
 
-- Router 使用 `APIRouter`，通过 `Depends()` 注入 UoW 和 Mediator
+- Router 使用 `APIRouter`，通过 `Depends()` 注入 UoW、Mediator 或模块提供的 Handler
+- **依赖注入分工**：跨模块共享依赖（Database、Mediator、UoW）在 `app/interfaces/dependencies.py`；模块内专属依赖（本模块 Handler/Repository/Gateway 的组装）在 `modules/<name>/interfaces/dependencies.py`，可 `Depends( get_uow )` 后构造并返回。Router 内只做 `Depends(...)` 注入，不手写 new Gateway/Repository/Handler
 - 请求/响应模型用 Pydantic BaseModel
 - 统一用 `ApiResponse` 包装响应
 

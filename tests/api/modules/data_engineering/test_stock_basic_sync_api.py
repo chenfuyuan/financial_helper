@@ -36,7 +36,7 @@ class TestStockBasicSyncApi:
         """同步成功时返回 2xx 及 data.synced_count。"""
         stub_stocks = [_make_stock(), _make_stock("000002.SZ", "万科A")]
         with patch(
-            "app.modules.data_engineering.interfaces.api.stock_basic_router.TuShareStockGateway"
+            "app.modules.data_engineering.interfaces.dependencies.TuShareStockGateway"
         ) as MockGateway:
             MockGateway.return_value.fetch_stock_basic = AsyncMock(return_value=stub_stocks)
             response = await api_client.post("/api/v1/data-engineering/stock-basic/sync")
@@ -51,7 +51,7 @@ class TestStockBasicSyncApi:
     async def test_post_sync_when_gateway_raises_returns_5xx(self, api_client) -> None:
         """网关抛异常时返回 5xx 或统一错误格式；或异常上抛（由统一异常中间件处理）。"""
         with patch(
-            "app.modules.data_engineering.interfaces.api.stock_basic_router.TuShareStockGateway"
+            "app.modules.data_engineering.interfaces.dependencies.TuShareStockGateway"
         ) as MockGateway:
             MockGateway.return_value.fetch_stock_basic = AsyncMock(
                 side_effect=Exception("External API error")

@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "c1add_stock_basic"
-down_revision = "bae8ccdeb6df"
+down_revision = None
 branch_labels = None
 depends_on = None
 

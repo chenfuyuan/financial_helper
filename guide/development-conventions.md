@@ -15,13 +15,19 @@ src/app/
 │   ├── domain/        # entities/, gateways/, repositories/; exceptions.py 可选
 │   ├── application/   # commands/, queries/
 │   ├── infrastructure/# gateways/（含 mappers/）, repositories/（含 mappers/）, models/
-│   └── interfaces/api/
-└── interfaces/        # main.py, dependencies.py
+│   └── interfaces/    # api/, dependencies.py（模块专属依赖）
+└── interfaces/        # main.py, dependencies.py（跨模块共享依赖）
 ```
 
 - **domain**：entities 一文件一概念；gateways 为外部数据接口，repositories 为持久化接口。
 - **application**：Handler 模块路径须含 `.commands.` 或 `.queries.`。
 - **infrastructure**：gateways/mappers 做「API 响应 → 领域模型」；repositories/mappers 做「领域模型 → 持久化」。新模块与 data_engineering 对齐。
+
+## 依赖注入规范
+
+- **跨模块共享依赖**（Database、Mediator、UoW 等）：仅放在 `app/interfaces/dependencies.py`，由 `main.py` 的 lifespan 挂到 `app.state`，供全局使用。
+- **模块内专属依赖**（本模块的 Repository、Gateway、Handler 的组装）：放在各模块自己的 `modules/<name>/interfaces/dependencies.py` 中，通过 `Depends(get_uow)` 等从全局获取共享依赖后，构造并返回本模块的 Handler 或所需实例。
+- **Router**：只通过 `Depends(...)` 注入全局或模块提供的依赖，不在路由函数内手写 `new` Gateway/Repository/Handler。
 
 ## 命令
 
