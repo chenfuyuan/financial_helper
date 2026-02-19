@@ -1,8 +1,8 @@
 """SyncStockBasic 命令的 Handler：编排网关拉取 → 仓储 upsert，返回 synced_count。"""
 
 from app.modules.data_engineering import domain  # noqa: F401
-from app.modules.data_engineering.domain.stock_basic_repository import StockBasicRepository
-from app.modules.data_engineering.domain.stock_gateway import StockGateway
+from app.modules.data_engineering.domain.gateways import StockGateway
+from app.modules.data_engineering.domain.repositories import StockBasicRepository
 from app.shared_kernel.application.command_handler import CommandHandler
 
 from .sync_stock_basic import SyncStockBasic

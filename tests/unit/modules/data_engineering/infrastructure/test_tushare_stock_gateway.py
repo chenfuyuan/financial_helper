@@ -5,9 +5,13 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from app.modules.data_engineering.domain.entities.stock_basic import (
+    DataSource,
+    StockBasic,
+    StockStatus,
+)
 from app.modules.data_engineering.domain.exceptions import ExternalStockServiceError
-from app.modules.data_engineering.domain.stock_basic import DataSource, StockBasic, StockStatus
-from app.modules.data_engineering.infrastructure.tushare_stock_gateway import TuShareStockGateway
+from app.modules.data_engineering.infrastructure.gateways import TuShareStockGateway
 
 
 class TestTuShareStockGatewayMapping:

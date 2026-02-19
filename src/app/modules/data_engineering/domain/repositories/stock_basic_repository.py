@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from .stock_basic import StockBasic
+from ..entities.stock_basic import StockBasic
 
 
 class StockBasicRepository(ABC):

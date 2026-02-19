@@ -13,19 +13,32 @@
 1. **存储最完整的数据** - 其他模块按需获取数据，不重复存储
 2. **调用 Foundation** - 使用 foundation 的 crawler、cache、notification 等服务
 
-**子模块：**
+### 模块内分层（复利工程约定）
+
+本模块作为 **domain / infrastructure 子目录 + mappers 内聚** 的参考实现：
+
+| 层 | 子目录 | 说明 |
+|----|--------|------|
+| **domain** | **entities/** | 实体、值对象、枚举（如 `StockBasic`, `StockStatus`, `DataSource`） |
+| **domain** | **gateways/** | 外部数据源网关**接口**（如 `StockGateway.fetch_stock_basic()`） |
+| **domain** | **repositories/** | 仓储**接口**（如 `StockBasicRepository.upsert_many()`） |
+| **infrastructure** | **gateways/** | 外部适配实现（如 TuShare）；其 **mappers/** 负责「API 响应 → 领域模型」 |
+| **infrastructure** | **repositories/** | 持久化仓储实现（如 SQLAlchemy）；其 **mappers/** 负责「领域模型 → 持久化行」 |
+| **infrastructure** | **models/** | SQLAlchemy 表模型（如 `StockBasicModel`） |
+
+**已实现示例：** 股票基础信息同步（StockBasic）
+- Domain：`entities/stock_basic.py`、`gateways/stock_gateway.py`、`repositories/stock_basic_repository.py`
+- Infra：`gateways/tushare_stock_gateway.py` + `gateways/mappers/tushare_stock_basic_mapper.py`；`repositories/sqlalchemy_stock_basic_repository.py` + `repositories/mappers/stock_basic_persistence_mapper.py`；`models/stock_basic_model.py`
+
+**规划子模块（待实现）：**
 - `data_source_manager` - 数据源管理器（Tushare、AkShare、Custom Crawler）
-- `etl_pipeline` - ETL处理流程
+- `etl_pipeline` - ETL 处理流程
 - `data_quality` - 数据质量检测
 - `data_warehouse` - 数据仓库
 
-**暴露接口：**
-- `DataSource.get_stock_info(code) -> StockInfo`
-- `DataSource.get_kline(code, period) -> KlineData`
-- `DataSource.get_financial_data(code) -> FinancialData`
-- `ETL.extract_transform_load(raw_data) -> CleanData`
-- `DataQuality.validate(data) -> QualityReport`
-- `DataWarehouse.query(sql) -> ResultSet`
+**暴露接口（当前/规划）：**
+- 当前：`StockGateway.fetch_stock_basic() -> list[StockBasic]`；`StockBasicRepository.upsert_many(stocks)`；HTTP `POST /data-engineering/stock-basic/sync`
+- 规划：`DataSource.get_stock_info(code)`、`DataSource.get_kline(code, period)`、`ETL.extract_transform_load(raw_data)`、`DataQuality.validate(data)`、`DataWarehouse.query(sql)` 等
 
 **依赖：**
 - ↳ FOUNDATION (task_scheduler, crawler, notification, cache)

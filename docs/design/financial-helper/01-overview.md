@@ -199,6 +199,28 @@ services:
 
 ## 14. 目录结构（补充）
 
+### 14.1 模块内分层约定（复利工程）
+
+各业务模块的 **domain** 与 **infrastructure** 采用统一子目录约定，便于 AI 与后续开发一致落地：
+
+- **domain**
+  - **entities/** — 实体、值对象、枚举（一个文件一个概念）
+  - **gateways/** — 外部服务网关**接口**（出站端口，如从第三方 API 拉数据）
+  - **repositories/** — 仓储**接口**（出站端口，持久化）
+  - 领域异常可放 domain 根，如 `exceptions.py`
+- **application**
+  - **commands/** — Command + CommandHandler（CQRS 写侧）；用例多时可按用例分子目录，如 `commands/sync_stock_basic/`
+  - **queries/** — Query + QueryHandler（CQRS 读侧）
+  - 架构守护要求：CommandHandler 所在模块路径含 `.commands.`，QueryHandler 含 `.queries.`
+- **infrastructure**
+  - **gateways/** — 实现 domain.gateways 的适配器；其 **mappers/** 子模块负责「外部响应 → 领域模型」
+  - **repositories/** — 实现 domain.repositories 的仓储；其 **mappers/** 子模块负责「领域模型 → 持久化行」
+  - **models/** — SQLAlchemy 表模型
+
+参考实现：**data_engineering** 模块（见下）。
+
+### 14.2 模块总览与 data_engineering 参考结构
+
 ```
 src/app/modules/
 ├── foundation/
@@ -213,15 +235,23 @@ src/app/modules/
 │   │   └── storage/
 │   └── interfaces/
 │
-├── data_engineering/
+├── data_engineering/          # 参考实现：domain/infra 子目录 + mappers 内聚
 │   ├── domain/
+│   │   ├── entities/          # 如 stock_basic.py（StockBasic, StockStatus, DataSource）
+│   │   ├── gateways/          # 如 stock_gateway.py（StockGateway 接口）
+│   │   ├── repositories/      # 如 stock_basic_repository.py（StockBasicRepository 接口）
+│   │   └── exceptions.py
 │   ├── application/
+│   │   └── commands/          # 如 sync_stock_basic, sync_stock_basic_handler
 │   ├── infrastructure/
-│   │   ├── data_source_manager/
-│   │   ├── etl_pipeline/
-│   │   ├── data_quality/
-│   │   └── data_warehouse/
-│   └── interfaces/
+│   │   ├── gateways/          # TuShare 等外部适配
+│   │   │   ├── mappers/       # 外部 API 响应 → 领域模型（如 tushare_stock_basic_mapper）
+│   │   │   └── tushare_stock_gateway.py
+│   │   ├── repositories/      # SQLAlchemy 仓储
+│   │   │   ├── mappers/       # 领域模型 → 持久化行（如 stock_basic_persistence_mapper）
+│   │   │   └── sqlalchemy_stock_basic_repository.py
+│   │   └── models/            # 如 stock_basic_model.py
+│   └── interfaces/api/
 │
 ├── llm_gateway/
 │   ├── domain/

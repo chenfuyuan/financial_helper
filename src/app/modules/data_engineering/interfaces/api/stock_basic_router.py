@@ -12,11 +12,9 @@ from app.modules.data_engineering.application.commands.sync_stock_basic import S
 from app.modules.data_engineering.application.commands.sync_stock_basic_handler import (
     SyncStockBasicHandler,
 )
-from app.modules.data_engineering.infrastructure.sqlalchemy_stock_basic_repository import (
+from app.modules.data_engineering.infrastructure.gateways import TuShareStockGateway
+from app.modules.data_engineering.infrastructure.repositories import (
     SqlAlchemyStockBasicRepository,
-)
-from app.modules.data_engineering.infrastructure.tushare_stock_gateway import (
-    TuShareStockGateway,
 )
 from app.shared_kernel.infrastructure.sqlalchemy_unit_of_work import SqlAlchemyUnitOfWork
 

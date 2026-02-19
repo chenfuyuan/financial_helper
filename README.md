@@ -61,7 +61,7 @@ src/app/
 │   ├── application/    # Command, Query, Handlers, UnitOfWork, Mediator
 │   └── infrastructure/ # Database, SqlAlchemy implementations
 ├── modules/            # Business modules (one per bounded context)
-│   └── example/        # Example module demonstrating full CQRS flow
+│   └── data_engineering/  # 数据工程模块（股票基础同步等）
 └── interfaces/         # FastAPI app entry point
 ```
 

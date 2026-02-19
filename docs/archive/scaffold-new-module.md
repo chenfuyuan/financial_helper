@@ -1,6 +1,6 @@
 # 新模块脚手架
 
-从 `example` 模块复制并重命名，快速生成新的限界上下文模块（含 domain / application / infrastructure / interfaces 与对应测试）。
+从 `data_engineering` 模块复制并重命名，快速生成新的限界上下文模块（含 domain / application / infrastructure / interfaces 与对应测试）。
 
 ---
 
@@ -40,14 +40,14 @@ python scripts/new_module.py order --aggregate Order
 - **name**：模块目录名，即 `src/app/modules/<name>`、`tests/unit/modules/<name>`、`tests/api/modules/<name>`。
 - **--aggregate**：可选。聚合根类名（PascalCase），默认由模块名推导（如 `product` → `Product`）。
 
-生成内容为 example 的完整拷贝，并做以下替换：
+生成内容为 data_engineering 的完整拷贝，并做以下替换：
 
 | 原样 | 替换为 |
 |------|--------|
-| `example`（模块路径） | `<name>` |
-| `Note` | 聚合名（如 `Product`） |
-| `note` | 聚合名小写（如 `product`） |
-| `notes`（表名/路由前缀） | `<name>s`（如 `products`） |
+| `data_engineering`（模块路径） | `<name>` |
+| `StockBasic` | 聚合名（如 `Product`） |
+| `stock_basic` | 聚合名小写+下划线（如 `product`） |
+| `StockBasicModel` / `stock_basic_model` | 聚合名+Model / 聚合名小写+_model |
 
 ## 脚手架完成后必做
 

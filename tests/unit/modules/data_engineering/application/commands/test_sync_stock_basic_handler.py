@@ -9,7 +9,11 @@ from app.modules.data_engineering.application.commands.sync_stock_basic import S
 from app.modules.data_engineering.application.commands.sync_stock_basic_handler import (
     SyncStockBasicHandler,
 )
-from app.modules.data_engineering.domain.stock_basic import DataSource, StockBasic, StockStatus
+from app.modules.data_engineering.domain.entities.stock_basic import (
+    DataSource,
+    StockBasic,
+    StockStatus,
+)
 
 
 def _make_stock(third_code: str = "000001.SZ", name: str = "平安银行") -> StockBasic:

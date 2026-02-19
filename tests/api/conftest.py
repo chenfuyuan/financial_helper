@@ -10,34 +10,14 @@ os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
 
 
 def _register_handlers(mediator, db):
-    """与 main 中一致：注册 example 模块的 command/query handlers。"""
-    from app.modules.example.application.commands.create_note import CreateNoteCommand
-    from app.modules.example.application.commands.create_note_handler import (
-        CreateNoteHandler,
-    )
-    from app.modules.example.application.queries.get_note import GetNoteQuery
-    from app.modules.example.application.queries.get_note_handler import GetNoteHandler
-    from app.modules.example.infrastructure.sqlalchemy_note_repository import (
-        SqlAlchemyNoteRepository,
-    )
-
-    def create_note_handler():
-        session = db.session_factory()
-        return CreateNoteHandler(repository=SqlAlchemyNoteRepository(session))
-
-    def get_note_handler():
-        session = db.session_factory()
-        return GetNoteHandler(repository=SqlAlchemyNoteRepository(session))
-
-    mediator.register_command_handler(CreateNoteCommand, create_note_handler)
-    mediator.register_query_handler(GetNoteQuery, get_note_handler)
+    """与 main 中一致：注册各模块的 command/query handlers（当前无通过 Mediator 的 handler）。"""
+    pass
 
 
 @pytest.fixture
 async def api_client():
     """FastAPI 应用 + 内存 SQLite，可调 HTTP 接口。不跑真实 lifespan，直接注入 db/mediator。"""
     import app.modules.data_engineering.infrastructure.models  # noqa: F401
-    import app.modules.example.infrastructure.models  # noqa: F401
     from app.interfaces import main
     from app.shared_kernel.application.mediator import Mediator
     from app.shared_kernel.infrastructure.database import Base, Database

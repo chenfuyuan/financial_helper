@@ -41,7 +41,7 @@ globs: tests/**/*.py
 
 - 使用 `api_client` fixture：注入内存 SQLite 与 mediator，不跑真实 lifespan
 - `httpx.AsyncClient` + `ASGITransport(app=app)` 调 HTTP
-- 示例：`tests/api/modules/example/test_note_api.py`（POST 创建、GET 查询、校验、404）
+- 示例：`tests/api/modules/data_engineering/test_stock_basic_sync_api.py`（POST 同步、校验、5xx）
 
 ## 反模式
 

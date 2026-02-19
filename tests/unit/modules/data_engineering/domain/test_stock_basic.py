@@ -2,7 +2,7 @@
 
 from datetime import date, datetime
 
-from app.modules.data_engineering.domain.stock_basic import (
+from app.modules.data_engineering.domain.entities.stock_basic import (
     DataSource,
     StockBasic,
     StockStatus,

@@ -42,7 +42,7 @@
 - **接口测试**：HTTP 调用 FastAPI
   - 使用 TestClient
   - 使用内存 SQLite
-  - 测试示例见 `tests/api/modules/example/`
+  - 测试示例见 `tests/api/modules/data_engineering/`
 
 ### 10.3 关键模块测试重点
 

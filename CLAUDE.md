@@ -60,12 +60,37 @@ src/app/
 │   ├── application/         # Command, Query, Handler, UnitOfWork, Mediator
 │   └── infrastructure/      # Database, SqlAlchemyRepository, SqlAlchemyUnitOfWork
 ├── modules/<name>/          # 业务模块（每个限界上下文一个）
-│   ├── domain/              # 聚合根、事件、仓储接口
-│   ├── application/         # commands/ + queries/
-│   ├── infrastructure/      # models/ + 仓储实现
+│   ├── domain/              # 领域层，分子目录存放（见下方「模块内分层约定」）
+│   │   ├── entities/        # 实体、值对象、枚举
+│   │   ├── gateways/        # 外部服务网关接口（出站端口）
+│   │   ├── repositories/    # 仓储接口（出站端口）
+│   │   └── exceptions.py    # 领域异常（可选，放 domain 根）
+│   ├── application/         # 应用层，分子目录（见下方约定）
+│   │   ├── commands/       # Command + CommandHandler（可按用例再分子目录，如 commands/sync_stock_basic/）
+│   │   └── queries/        # Query + QueryHandler
+│   ├── infrastructure/      # 基础设施层，分子目录 + mappers 内聚（见下方约定）
+│   │   ├── gateways/        # 外部服务适配实现（含 mappers/ 子模块）
+│   │   ├── repositories/    # 持久化仓储实现（含 mappers/ 子模块）
+│   │   └── models/          # SQLAlchemy 表模型
 │   └── interfaces/api/      # router, requests/, responses/
 └── interfaces/              # FastAPI 入口 (main.py, dependencies.py)
 ```
+
+### 模块内分层约定（复利工程）
+
+- **domain**
+  - **entities/**：聚合根、实体、值对象、枚举；一个文件一个概念。
+  - **gateways/**：从外部系统获取数据的**接口**（如 `StockGateway`），与 repository 区分。
+  - **repositories/**：持久化仓储**接口**（如 `StockBasicRepository`）。不在此放 gateway 接口。
+  - 领域异常可放在 domain 根目录 `exceptions.py`。
+- **application**
+  - **commands/**：Command 与 CommandHandler（CQRS 写侧）。用例增多时可按用例分子目录，如 `commands/sync_stock_basic/` 下放 `sync_stock_basic.py` 与 `sync_stock_basic_handler.py`；架构守护要求 Handler 所在模块路径包含 `.commands.`。
+  - **queries/**：Query 与 QueryHandler（CQRS 读侧）；Handler 所在模块路径须包含 `.queries.`。
+- **infrastructure**
+  - **gateways/**：实现 domain.gateways 的适配器（如 TuShare 网关）；**mappers** 作为子目录 `gateways/mappers/`，负责「外部 API 响应 → 领域模型」的映射。
+  - **repositories/**：实现 domain.repositories 的仓储（如 SQLAlchemy 仓储）；**mappers** 作为子目录 `repositories/mappers/`，负责「领域模型 → 持久化行/dict」的映射。
+  - **models/**：SQLAlchemy 表模型，供 repositories 使用。
+- 新模块或新聚合时，按上述约定建子目录，保持与 data_engineering 一致，便于 AI 与后续开发复用。
 
 ## 命令
 
@@ -79,7 +104,7 @@ make ci               # 与 CI 一致：lint + format check + type-check + archi
 make architecture-check  # 架构守护：lint-imports + pytest tests/architecture/
 make migrate          # alembic upgrade head
 make migrate-create msg="描述"
-make new-module name=<模块名>  # 从 example 生成新模块脚手架，见 docs/scaffold-new-module.md
+make new-module name=<模块名>  # 从 data_engineering 生成新模块脚手架，见 docs/scaffold-new-module.md
 make docker-up        # docker compose up -d --build
 ```
 
@@ -113,7 +138,7 @@ make docker-up        # docker compose up -d --build
   - `shared_kernel/` — 对应 `app/shared_kernel/`
   - `modules/<name>/` — 对应 `app/modules/<name>/`，**模块内按子目录**：`domain/`、`application/`（与源码一致）
 - `tests/integration/` — 多层协作，aiosqlite 内存数据库
-- `tests/api/` — 接口测试，HTTP 调 FastAPI，内存 SQLite，示例见 `tests/api/modules/example/`
+- `tests/api/` — 接口测试，HTTP 调 FastAPI，内存 SQLite，示例见 `tests/api/modules/data_engineering/`
 - 运行: `python -m pytest tests/ -v`
 
 ## 验证（提交前必须通过）

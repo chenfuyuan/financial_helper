@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""从 example 模块复制并重命名，生成新业务模块脚手架。
+"""从 data_engineering 模块复制并重命名，生成新业务模块脚手架。
 
 用法:
     python scripts/new_module.py <module_slug> [--aggregate NAME]
@@ -10,10 +10,12 @@
     python scripts/new_module.py order --aggregate Order
 
 生成后需手动:
-  1. 在 app/interfaces/main.py 中注册 router 与 lifespan 中的 handlers
-  2. 在 tests/api/conftest.py 的 _register_handlers 中注册新模块的 handlers
-  3. 按需修改聚合字段、表名、路由前缀
-  4. 运行 make migrate-create msg="add <module> tables"
+  1. 在 app/interfaces/main.py 中注册 router（若需 Mediator 则注册 handlers）
+  2. 在 tests/api/conftest.py 的 _register_handlers 中注册新模块的 handlers（若需）
+  3. 在 migrations/env.py 中 import 新模块的 Model
+  4. 在 pyproject.toml 的 import-linter containers 中追加 app.modules.<name>
+  5. 按需修改聚合字段、表名、路由前缀、网关等
+  6. 运行 make migrate-create msg="add <module> tables"
 """
 
 from __future__ import annotations
@@ -25,11 +27,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-EXAMPLE = "example"
+TEMPLATE_MODULE = "data_engineering"
 SOURCE_DIRS = [
-    ROOT / "src" / "app" / "modules" / EXAMPLE,
-    ROOT / "tests" / "unit" / "modules" / EXAMPLE,
-    ROOT / "tests" / "api" / "modules" / EXAMPLE,
+    ROOT / "src" / "app" / "modules" / TEMPLATE_MODULE,
+    ROOT / "tests" / "unit" / "modules" / TEMPLATE_MODULE,
+    ROOT / "tests" / "api" / "modules" / TEMPLATE_MODULE,
+    ROOT / "tests" / "integration" / "modules" / TEMPLATE_MODULE,
 ]
 
 
@@ -39,7 +42,7 @@ def slug_to_pascal(slug: str) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="New DDD module scaffold from example")
+    parser = argparse.ArgumentParser(description="New DDD module scaffold from data_engineering")
     parser.add_argument(
         "name",
         metavar="MODULE_SLUG",
@@ -59,20 +62,23 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
-    if module_slug == EXAMPLE:
-        print("Error: MODULE_SLUG cannot be 'example'.", file=sys.stderr)
+    if module_slug == TEMPLATE_MODULE:
+        print(f"Error: MODULE_SLUG cannot be '{TEMPLATE_MODULE}'.", file=sys.stderr)
         return 1
 
     aggregate_name = args.aggregate.strip() if args.aggregate else slug_to_pascal(module_slug)
-    aggregate_slug = aggregate_name.lower()
-    plural = module_slug + "s"  # naive plural; adjust in code if needed
+    aggregate_slug = aggregate_name.lower().replace("-", "_")
+    # 模板中的聚合名/表名（data_engineering 为 StockBasic / stock_basic）
+    template_aggregate = "StockBasic"
+    template_slug = "stock_basic"
 
     # Replacements (order: longer / specific first to avoid double-replace)
     replacements = [
-        ("app.modules." + EXAMPLE, "app.modules." + module_slug),
-        ("Note", aggregate_name),
-        ("notes", plural),
-        ("note", aggregate_slug),
+        ("app.modules." + TEMPLATE_MODULE, "app.modules." + module_slug),
+        ("StockBasicModel", aggregate_name + "Model"),
+        ("stock_basic_model", aggregate_slug + "_model"),
+        (template_aggregate, aggregate_name),
+        (template_slug, aggregate_slug),
     ]
 
     for src_dir in SOURCE_DIRS:
@@ -88,10 +94,10 @@ def main() -> int:
         dest_dir = src_dir.parent / module_slug
         shutil.copytree(src_dir, dest_dir, dirs_exist_ok=False)
 
-        # Rename files: any filename containing "note" -> aggregate_slug
+        # Rename files: any filename containing template_slug -> aggregate_slug
         for path in sorted(dest_dir.rglob("*"), key=lambda p: (-len(p.parts), p)):
-            if path.is_file() and "note" in path.name:
-                new_name = path.name.replace("note", aggregate_slug)
+            if path.is_file() and template_slug in path.name:
+                new_name = path.name.replace(template_slug, aggregate_slug)
                 if new_name != path.name:
                     new_path = path.parent / new_name
                     path.rename(new_path)

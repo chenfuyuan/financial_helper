@@ -51,11 +51,11 @@
 1. **必须读取：**
    - `modules/research.md` - 研究模块详细设计
    - `02-dependencies.md` - 了解依赖关系和约束
-   - `01-overview.md` - 了解整体架构
+   - `01-overview.md` - 了解整体架构（含 **14.1 模块内分层约定**：domain 的 entities/gateways/repositories、infra 的 gateways/repositories/models 及 mappers 内聚）
 
 2. **按需读取：**
    - 相关的横向关注点文档（如 `cross-cutting/testing.md`）
-   - 依赖的模块文档（如 `modules/data-engineering.md`）
+   - 依赖的模块文档（如 `modules/data-engineering.md`，含当前分层参考实现）
 
 ### 场景 2：优化性能
 

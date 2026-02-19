@@ -17,12 +17,6 @@ from app.interfaces.response import ApiResponse
 from app.modules.data_engineering.interfaces.api.stock_basic_router import (
     router as stock_basic_router,
 )
-from app.modules.example.application.commands.create_note import CreateNoteCommand
-from app.modules.example.application.commands.create_note_handler import CreateNoteHandler
-from app.modules.example.application.queries.get_note import GetNoteQuery
-from app.modules.example.application.queries.get_note_handler import GetNoteHandler
-from app.modules.example.infrastructure.sqlalchemy_note_repository import SqlAlchemyNoteRepository
-from app.modules.example.interfaces.api.note_router import router as note_router
 from app.shared_kernel.application.mediator import Mediator
 from app.shared_kernel.domain.exception import DomainException
 from app.shared_kernel.infrastructure.database import Database
@@ -33,19 +27,7 @@ logger = get_logger(__name__)
 
 def _register_handlers(mediator: Mediator, db: Database) -> None:
     """Register all module command/query handlers with the mediator."""
-
-    def create_note_handler() -> CreateNoteHandler:
-        session = db.session_factory()
-        repo = SqlAlchemyNoteRepository(session)
-        return CreateNoteHandler(repository=repo)
-
-    def get_note_handler() -> GetNoteHandler:
-        session = db.session_factory()
-        repo = SqlAlchemyNoteRepository(session)
-        return GetNoteHandler(repository=repo)
-
-    mediator.register_command_handler(CreateNoteCommand, create_note_handler)
-    mediator.register_query_handler(GetNoteQuery, get_note_handler)
+    # 各模块的 command/query 若需通过 Mediator 分发，在此注册
 
 
 @asynccontextmanager
@@ -82,7 +64,6 @@ app.add_exception_handler(
 )
 app.add_exception_handler(Exception, general_exception_handler)
 
-app.include_router(note_router, prefix="/api/v1")
 app.include_router(stock_basic_router, prefix="/api/v1")
 
 

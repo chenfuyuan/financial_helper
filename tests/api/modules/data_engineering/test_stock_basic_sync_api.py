@@ -5,7 +5,11 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from app.modules.data_engineering.domain.stock_basic import DataSource, StockBasic, StockStatus
+from app.modules.data_engineering.domain.entities.stock_basic import (
+    DataSource,
+    StockBasic,
+    StockStatus,
+)
 
 
 def _make_stock(third_code: str = "000001.SZ", name: str = "平安银行") -> StockBasic:

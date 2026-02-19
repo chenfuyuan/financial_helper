@@ -9,6 +9,7 @@ services:
       - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/financial_helper
       - APP_ENV=development
       - APP_DEBUG=true
+      - TUSHARE_TOKEN=${TUSHARE_TOKEN:-}
     depends_on:
       db:
         condition: service_healthy

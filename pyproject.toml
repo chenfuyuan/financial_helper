@@ -71,6 +71,5 @@ layers = [
 ]
 containers = [
     "app.shared_kernel",
-    "app.modules.example",
     "app.modules.data_engineering",
 ]

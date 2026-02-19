@@ -6,9 +6,13 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.modules.data_engineering.domain.stock_basic import DataSource, StockBasic, StockStatus
+from app.modules.data_engineering.domain.entities.stock_basic import (
+    DataSource,
+    StockBasic,
+    StockStatus,
+)
 from app.modules.data_engineering.infrastructure.models.stock_basic_model import StockBasicModel
-from app.modules.data_engineering.infrastructure.sqlalchemy_stock_basic_repository import (
+from app.modules.data_engineering.infrastructure.repositories import (
     SqlAlchemyStockBasicRepository,
 )
 from app.shared_kernel.infrastructure.database import Base
