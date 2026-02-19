@@ -13,10 +13,8 @@ from app.interfaces.exception_handler import (
     validation_exception_handler,
 )
 from app.interfaces.middleware import setup_middleware
+from app.interfaces.module_registry import register_modules
 from app.interfaces.response import ApiResponse
-from app.modules.data_engineering.interfaces.api.stock_basic_router import (
-    router as stock_basic_router,
-)
 from app.shared_kernel.application.mediator import Mediator
 from app.shared_kernel.domain.exception import DomainException
 from app.shared_kernel.infrastructure.database import Database
@@ -32,7 +30,7 @@ def _register_handlers(mediator: Mediator, db: Database) -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    configure_logging()
+    configure_logging(log_level=settings.LOG_LEVEL, app_env=settings.APP_ENV)
     logger.info("Application starting up", app_name=settings.APP_NAME, env=settings.APP_ENV)
 
     db = Database(url=settings.DATABASE_URL, echo=settings.APP_DEBUG)
@@ -64,7 +62,7 @@ app.add_exception_handler(
 )
 app.add_exception_handler(Exception, general_exception_handler)
 
-app.include_router(stock_basic_router, prefix="/api/v1")
+register_modules(app)
 
 
 @app.get("/health", response_model=ApiResponse[dict])

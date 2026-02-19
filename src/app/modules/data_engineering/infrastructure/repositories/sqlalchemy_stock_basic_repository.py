@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.data_engineering.domain.entities.stock_basic import StockBasic
 from app.modules.data_engineering.domain.repositories import StockBasicRepository
+from app.modules.data_engineering.domain.value_objects.data_source import DataSource
+from app.modules.data_engineering.domain.value_objects.stock_status import StockStatus
 from app.shared_kernel.infrastructure.sqlalchemy_repository import SqlAlchemyRepository
 
 from ..models.stock_basic_model import StockBasicModel
@@ -35,10 +37,10 @@ class SqlAlchemyStockBasicRepository(
         self._mapper = mapper or StockBasicPersistenceMapper()
 
     def _to_entity(self, model: Any) -> StockBasic:
-        """ORM Model → 领域聚合根。"""
+        """ORM Model → 领域聚合根。数据库字符串转回领域枚举。"""
         return StockBasic(
             id=model.id,
-            source=model.source,
+            source=DataSource(model.source),
             third_code=model.third_code,
             symbol=model.symbol,
             name=model.name,
@@ -46,7 +48,7 @@ class SqlAlchemyStockBasicRepository(
             area=model.area,
             industry=model.industry,
             list_date=model.list_date,
-            status=model.status,
+            status=StockStatus(model.status),
         )
 
     def _to_model(self, entity: StockBasic) -> Any:

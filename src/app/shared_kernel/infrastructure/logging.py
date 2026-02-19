@@ -4,13 +4,12 @@ from typing import Any
 
 import structlog
 
-from app.config import settings
 
+def configure_logging(log_level: str = "INFO", app_env: str = "production") -> None:
+    """配置结构化日志。参数由调用方（如 main.py lifespan）注入，不直接依赖 config 单例。"""
+    level = getattr(logging, log_level.upper(), logging.INFO)
 
-def configure_logging() -> None:
-    level = getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO)
-
-    if settings.APP_ENV == "development":
+    if app_env == "development":
         renderer: structlog.types.Processor = structlog.dev.ConsoleRenderer()
     else:
         renderer = structlog.processors.JSONRenderer()

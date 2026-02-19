@@ -5,8 +5,8 @@ from app.modules.data_engineering.domain.value_objects.data_source import DataSo
 from app.modules.data_engineering.domain.value_objects.stock_status import StockStatus
 
 
-def _source_str(source: DataSource | str) -> str:
-    return source.value if isinstance(source, DataSource) else str(source)
+def _source_str(source: DataSource) -> str:
+    return source.value
 
 
 def _status_str(status: StockStatus) -> str:

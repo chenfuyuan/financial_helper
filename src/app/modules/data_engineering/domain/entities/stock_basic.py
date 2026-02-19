@@ -14,7 +14,7 @@ class StockBasic(AggregateRoot[int | None]):
     """股票基础信息聚合根。以 (source, third_code) 为逻辑唯一键，仅含业务属性。"""
 
     id: int | None
-    source: DataSource | str
+    source: DataSource
     third_code: str
     symbol: str
     name: str

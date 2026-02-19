@@ -12,7 +12,7 @@
 ### 2. DDD 建模规范
 - **聚合根**：继承 `AggregateRoot[ID]`，拥有独立 Repository
 - **实体**：继承 `Entity[ID]`，仅包含业务属性，不含基础设施字段（created_at/updated_at/version）
-- **值对象**：继承 `ValueObject`，不可变（`@dataclass(frozen=True)`），含 `_validate()`
+- **值对象**：复合值对象继承 `ValueObject`（`@dataclass(frozen=True)` + `_validate()`）；枚举类型的值对象允许使用 `StrEnum`/`IntEnum`
 - **领域事件**：继承 `DomainEvent`，由聚合根发布
 - **领域异常**：继承 `DomainException`，不直接继承 `Exception`
 
@@ -27,7 +27,7 @@ src/app/
 ├── shared_kernel/                    # 跨模块共享构建块
 │   ├── domain/                       # 领域基类（aggregate_root, entity, value_object, domain_event, exception, repository, unit_of_work）
 │   ├── application/                  # 应用层基类（command, command_handler, query, query_handler, mediator, event_bus, dto）
-│   └── infrastructure/               # 基础设施基类（database, sqlalchemy_repository, sqlalchemy_unit_of_work, logging）
+│   └── infrastructure/               # 基础设施基类（database, sqlalchemy_repository, sqlalchemy_unit_of_work, logging, cache, message_bus, scheduler）
 │
 ├── modules/<module_name>/             # 业务模块
 │   ├── domain/                       # 领域层
@@ -58,6 +58,7 @@ src/app/
 │
 └── interfaces/                        # 全局接口层
     ├── main.py                       # FastAPI 应用
+    ├── module_registry.py            # 模块注册器（新增模块在此追加 Router）
     ├── dependencies.py               # 跨模块依赖
     ├── exception_handler.py          # 异常处理
     ├── middleware.py                 # 中间件
@@ -69,6 +70,17 @@ src/app/
 - **跨模块共享依赖**（Database、Mediator、UoW 等）：仅放在 `app/interfaces/dependencies.py`，由 `main.py` 的 lifespan 挂到 `app.state`，供全局使用。
 - **模块内专属依赖**（本模块的 Repository、Gateway、Handler 的组装）：放在各模块自己的 `modules/<name>/interfaces/dependencies.py` 中，通过 `Depends(get_uow)` 等从全局获取共享依赖后，构造并返回本模块的 Handler 或所需实例。
 - **Router**：只通过 `Depends(...)` 注入全局或模块提供的依赖，不在路由函数内手写 `new` Gateway/Repository/Handler。
+
+## 模块注册规范
+
+- **新增模块**时，在 `app/interfaces/module_registry.py` 的 `_collect_module_routers()` 中追加 Router 与前缀，`main.py` 无需修改。
+- **日志配置**通过参数注入（`configure_logging(log_level=..., app_env=...)`），`shared_kernel/infrastructure/logging.py` 不直接依赖 `app.config`。
+
+## 仓储接口规范
+
+- 通用 CRUD 场景可继承 `shared_kernel.domain.repository.Repository[AR, ID]`。
+- 批量操作等特殊场景允许模块仓储接口独立定义 ABC（如 `StockBasicRepository.upsert_many`），不强制继承通用基类。
+- 基础设施实现可同时继承 `SqlAlchemyRepository` 和模块仓储接口，按需覆盖方法。
 
 ## 数据库设计规范
 

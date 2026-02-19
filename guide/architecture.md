@@ -33,7 +33,9 @@ interfaces → application → domain ← infrastructure
 - SqlAlchemy Model: 继承 `Base`，放在 `models/` 目录；表字段顺序：id 最前，业务字段居中，created_at/updated_at/version 最后
 - Alembic 迁移：`create_table` / `add_column` 的列顺序与模型一致（同上）
 - Repository 实现: 继承 `SqlAlchemyRepository` + 具体模块仓储接口
-- 必须实现 `_to_entity()` 和 `_to_model()` 转换方法
+- 必须实现 `_to_entity()` 和 `_to_model()` 转换方法；`_to_entity()` 中须将 DB 字符串转回领域枚举
+- 共享抽象: `cache.py`（CacheClient）、`message_bus.py`（MessageBus）、`scheduler.py`（Scheduler）供模块实现
+- `logging.py` 通过参数注入配置（`configure_logging(log_level, app_env)`），不直接 import `app.config`
 
 ## Interfaces 层
 
