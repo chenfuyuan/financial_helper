@@ -11,10 +11,14 @@ def _collect_module_routers() -> list[tuple[APIRouter, str]]:
     from app.modules.data_engineering.interfaces.api.stock_daily_router import (
         router as stock_daily_router,
     )
+    from app.modules.data_engineering.interfaces.api.finance_indicator_router import (
+        router as finance_indicator_router,
+    )
 
     return [
         (stock_basic_router, "/api/v1"),
         (stock_daily_router, "/api/v1"),
+        (finance_indicator_router, "/api/v1"),
     ]
 
 

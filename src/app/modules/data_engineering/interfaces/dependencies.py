@@ -81,3 +81,74 @@ def get_retry_stock_daily_sync_failures_handler(
         failure_repo=failure_repo,
         uow=uow,
     )
+
+
+def get_sync_finance_indicator_full_handler(
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+):
+    from app.modules.data_engineering.application.commands.sync_finance_indicator_full_handler import (
+        SyncFinanceIndicatorFullHandler,
+    )
+    from app.modules.data_engineering.infrastructure.gateways.tushare_finance_indicator_gateway import (
+        TuShareFinanceIndicatorGateway,
+    )
+    from app.modules.data_engineering.infrastructure.repositories.sqlalchemy_financial_indicator_repository import (
+        SqlAlchemyFinancialIndicatorRepository,
+    )
+
+    import tushare as ts  # type: ignore[import-untyped]
+
+    pro = ts.pro_api(settings.TUSHARE_TOKEN)
+    return SyncFinanceIndicatorFullHandler(
+        basic_repo=SqlAlchemyStockBasicRepository(uow.session),
+        fi_repo=SqlAlchemyFinancialIndicatorRepository(uow.session),
+        gateway=TuShareFinanceIndicatorGateway(pro=pro),
+        uow=uow,
+    )
+
+
+def get_sync_finance_indicator_by_stock_handler(
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+):
+    from app.modules.data_engineering.application.commands.sync_finance_indicator_by_stock_handler import (
+        SyncFinanceIndicatorByStockHandler,
+    )
+    from app.modules.data_engineering.infrastructure.gateways.tushare_finance_indicator_gateway import (
+        TuShareFinanceIndicatorGateway,
+    )
+    from app.modules.data_engineering.infrastructure.repositories.sqlalchemy_financial_indicator_repository import (
+        SqlAlchemyFinancialIndicatorRepository,
+    )
+
+    import tushare as ts  # type: ignore[import-untyped]
+
+    pro = ts.pro_api(settings.TUSHARE_TOKEN)
+    return SyncFinanceIndicatorByStockHandler(
+        fi_repo=SqlAlchemyFinancialIndicatorRepository(uow.session),
+        gateway=TuShareFinanceIndicatorGateway(pro=pro),
+        uow=uow,
+    )
+
+
+def get_sync_finance_indicator_increment_handler(
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+):
+    from app.modules.data_engineering.application.commands.sync_finance_indicator_increment_handler import (
+        SyncFinanceIndicatorIncrementHandler,
+    )
+    from app.modules.data_engineering.infrastructure.gateways.tushare_finance_indicator_gateway import (
+        TuShareFinanceIndicatorGateway,
+    )
+    from app.modules.data_engineering.infrastructure.repositories.sqlalchemy_financial_indicator_repository import (
+        SqlAlchemyFinancialIndicatorRepository,
+    )
+
+    import tushare as ts  # type: ignore[import-untyped]
+
+    pro = ts.pro_api(settings.TUSHARE_TOKEN)
+    return SyncFinanceIndicatorIncrementHandler(
+        basic_repo=SqlAlchemyStockBasicRepository(uow.session),
+        fi_repo=SqlAlchemyFinancialIndicatorRepository(uow.session),
+        gateway=TuShareFinanceIndicatorGateway(pro=pro),
+        uow=uow,
+    )
