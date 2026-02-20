@@ -124,3 +124,11 @@ class TestSqlAlchemyStockBasicRepository:
             assert "000001.SZ" in listed_codes
             assert "000002.SZ" in listed_codes
             assert "000003.SZ" not in listed_codes
+            
+            # 测试 find_all（包含所有状态）
+            all_stocks = await repo.find_all(DataSource.TUSHARE)
+            assert len(all_stocks) == 3
+            all_codes = [s.third_code for s in all_stocks]
+            assert "000001.SZ" in all_codes
+            assert "000002.SZ" in all_codes
+            assert "000003.SZ" in all_codes

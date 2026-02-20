@@ -64,15 +64,24 @@ async def test_fetch_stock_daily_multi_batch(mock_to_thread, gateway):
                  "high": "11", "low": "9", "close": "10", "pre_close": "10",
                  "change": "0", "pct_chg": "0", "vol": "100", "amount": "1000"}]
 
-    # 2020-01-01 到 2021-12-31 共 731 天，分 3 批，每批 3 次 API 调用 = 9 次
-    # 每批使用不同的 trade_date 避免 mapper 合并时去重
+    # 2020-01-01 到 2021-12-31 共 731 天，原设计分 3 批。
+    # 因为现在实际拆分逻辑 batch size 是 5000，为了测试分批逻辑，我们直接 mock 拆分结果
     mock_to_thread.side_effect = [
-        make_daily("20200601"), [], [],   # 第 1 批
-        make_daily("20210101"), [], [],   # 第 2 批
-        make_daily("20211001"), [], [],   # 第 3 批
+        make_daily("20200601"), [], [],  # 第 1 批
+        make_daily("20210101"), [], [],  # 第 2 批
+        make_daily("20211001"), [], [],  # 第 3 批
     ]
 
-    result = await gateway.fetch_stock_daily("000001.SZ", date(2020, 1, 1), date(2021, 12, 31))
+    with patch.object(
+        gateway, 
+        "_split_date_ranges", 
+        return_value=[
+            (date(2020, 1, 1), date(2020, 6, 30)),
+            (date(2020, 7, 1), date(2020, 12, 31)),
+            (date(2021, 1, 1), date(2021, 12, 31)),
+        ]
+    ):
+        result = await gateway.fetch_stock_daily("000001.SZ", date(2020, 1, 1), date(2021, 12, 31))
 
     # 3 批共 9 次 API 调用
     assert mock_to_thread.call_count == 9

@@ -20,7 +20,12 @@ class StockBasicRepository(ABC):
         ...
 
     @abstractmethod
-    async def find_all(self, source: DataSource) -> list[StockBasic]:
+    async def find_all_listed(self, source: DataSource) -> list[StockBasic]:
         """查询指定 source 下所有状态为 LISTED 的股票。"""
+        ...
+
+    @abstractmethod
+    async def find_all(self, source: DataSource) -> list[StockBasic]:
+        """查询指定 source 下所有股票（不限制状态）。"""
         ...
 

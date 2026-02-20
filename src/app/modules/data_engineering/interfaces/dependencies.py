@@ -7,6 +7,9 @@ from app.interfaces.dependencies import get_uow
 from app.modules.data_engineering.application.commands.retry_stock_daily_sync_failures_handler import (
     RetryStockDailySyncFailuresHandler,
 )
+from app.modules.data_engineering.application.commands.sync_concepts_handler import (
+    SyncConceptsHandler,
+)
 from app.modules.data_engineering.application.commands.sync_stock_basic_handler import (
     SyncStockBasicHandler,
 )
@@ -16,11 +19,22 @@ from app.modules.data_engineering.application.commands.sync_stock_daily_history_
 from app.modules.data_engineering.application.commands.sync_stock_daily_increment_handler import (
     SyncStockDailyIncrementHandler,
 )
-from app.modules.data_engineering.infrastructure.gateways import TuShareStockGateway
+from app.modules.data_engineering.application.queries.get_concept_stocks_handler import (
+    GetConceptStocksHandler,
+)
+from app.modules.data_engineering.application.queries.get_concepts_handler import (
+    GetConceptsHandler,
+)
+from app.modules.data_engineering.infrastructure.gateways import (
+    AkShareConceptGateway,
+    TuShareStockGateway,
+)
 from app.modules.data_engineering.infrastructure.gateways.tushare_stock_daily_gateway import (
     TuShareStockDailyGateway,
 )
 from app.modules.data_engineering.infrastructure.repositories import (
+    SqlAlchemyConceptRepository,
+    SqlAlchemyConceptStockRepository,
     SqlAlchemyStockBasicRepository,
 )
 from app.modules.data_engineering.infrastructure.repositories.sqlalchemy_stock_daily_repository import (
@@ -39,6 +53,33 @@ def get_sync_stock_basic_handler(
     gateway = TuShareStockGateway(token=settings.TUSHARE_TOKEN)
     repository = SqlAlchemyStockBasicRepository(uow.session)
     return SyncStockBasicHandler(gateway=gateway, repository=repository, uow=uow)
+
+
+def get_sync_concepts_handler(
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+) -> SyncConceptsHandler:
+    return SyncConceptsHandler(
+        gateway=AkShareConceptGateway(),
+        concept_repo=SqlAlchemyConceptRepository(uow.session),
+        concept_stock_repo=SqlAlchemyConceptStockRepository(uow.session),
+        stock_basic_repo=SqlAlchemyStockBasicRepository(uow.session),
+        uow=uow,
+    )
+
+
+def get_get_concepts_handler(
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+) -> GetConceptsHandler:
+    return GetConceptsHandler(concept_repo=SqlAlchemyConceptRepository(uow.session))
+
+
+def get_get_concept_stocks_handler(
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+) -> GetConceptStocksHandler:
+    return GetConceptStocksHandler(
+        concept_repo=SqlAlchemyConceptRepository(uow.session),
+        concept_stock_repo=SqlAlchemyConceptStockRepository(uow.session),
+    )
 
 
 def get_sync_stock_daily_history_handler(

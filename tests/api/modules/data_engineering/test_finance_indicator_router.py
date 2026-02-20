@@ -51,7 +51,7 @@ async def test_sync_full(app_with_mocks):
     async with AsyncClient(
         transport=ASGITransport(app=app_with_mocks), base_url="http://test"
     ) as c:
-        r = await c.post("/api/v1/finance-indicator/sync/full")
+        r = await c.post("/api/v1/data-engineering/finance-indicator/sync/full")
     assert r.status_code == 200
     assert r.json()["success_count"] == 9
 
@@ -61,7 +61,7 @@ async def test_sync_by_stock(app_with_mocks):
     async with AsyncClient(
         transport=ASGITransport(app=app_with_mocks), base_url="http://test"
     ) as c:
-        r = await c.post("/api/v1/finance-indicator/sync/by-stock/000001.SZ")
+        r = await c.post("/api/v1/data-engineering/finance-indicator/sync/by-stock/000001.SZ")
     assert r.status_code == 200
     assert r.json()["synced_records"] == 40
 
@@ -71,6 +71,6 @@ async def test_sync_increment(app_with_mocks):
     async with AsyncClient(
         transport=ASGITransport(app=app_with_mocks), base_url="http://test"
     ) as c:
-        r = await c.post("/api/v1/finance-indicator/sync/increment")
+        r = await c.post("/api/v1/data-engineering/finance-indicator/sync/increment")
     assert r.status_code == 200
     assert r.json()["total"] == 10

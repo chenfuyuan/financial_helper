@@ -14,14 +14,17 @@ async def session_factory():
 
 class TestSqlAlchemyUnitOfWork:
     async def test_provides_session(self, session_factory) -> None:
-        async with SqlAlchemyUnitOfWork(session_factory) as uow:
-            assert uow.session is not None
+        async with session_factory() as session:
+            async with SqlAlchemyUnitOfWork(session) as uow:
+                assert uow.session is not None
 
     async def test_commit(self, session_factory) -> None:
-        async with SqlAlchemyUnitOfWork(session_factory) as uow:
-            await uow.commit()
+        async with session_factory() as session:
+            async with SqlAlchemyUnitOfWork(session) as uow:
+                await uow.commit()
 
     async def test_rollback_on_exception(self, session_factory) -> None:
         with pytest.raises(ValueError):
-            async with SqlAlchemyUnitOfWork(session_factory) as _:
-                raise ValueError("boom")
+            async with session_factory() as session:
+                async with SqlAlchemyUnitOfWork(session) as _:
+                    raise ValueError("boom")

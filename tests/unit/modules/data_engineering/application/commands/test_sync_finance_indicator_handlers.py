@@ -37,7 +37,7 @@ def _stock(code="000001.SZ"):
 @pytest.mark.asyncio
 async def test_full_syncs_all_stocks():
     basic_repo = AsyncMock()
-    basic_repo.find_all_listed.return_value = [_stock()]
+    basic_repo.find_all.return_value = [_stock()]
     fi_repo = AsyncMock()
     gateway = AsyncMock()
     gateway.fetch_by_stock.return_value = [MagicMock()]

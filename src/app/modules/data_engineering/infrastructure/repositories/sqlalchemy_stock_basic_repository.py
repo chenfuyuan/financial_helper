@@ -93,11 +93,19 @@ class SqlAlchemyStockBasicRepository(
         result = await self._session.execute(stmt)
         return [self._to_entity(m) for m in result.scalars().all()]
 
+    async def find_all_listed(self, source: DataSource) -> list[StockBasic]:
+        from sqlalchemy import select
+        stmt = select(StockBasicModel).where(
+            StockBasicModel.source == source.value,
+            StockBasicModel.status == StockStatus.LISTED.value,
+        )
+        result = await self._session.execute(stmt)
+        return [self._to_entity(m) for m in result.scalars().all()]
+
     async def find_all(self, source: DataSource) -> list[StockBasic]:
         from sqlalchemy import select
         stmt = select(StockBasicModel).where(
             StockBasicModel.source == source.value,
-            # StockBasicModel.status == StockStatus.LISTED.value,
         )
         result = await self._session.execute(stmt)
         return [self._to_entity(m) for m in result.scalars().all()]
