@@ -1,17 +1,17 @@
 """TuShare 股票日线数据网关：拉取数据并委托 Mapper 解析。带 Token Bucket 限流。"""
 
 import asyncio
-import logging
 from datetime import date, timedelta
 from typing import Any
 
 from app.modules.data_engineering.domain.entities.stock_daily import StockDaily
 from app.modules.data_engineering.domain.exceptions import ExternalStockServiceError
 from app.modules.data_engineering.domain.gateways.stock_daily_gateway import StockDailyGateway
+from app.shared_kernel.infrastructure.logging import get_logger
 
 from .mappers.tushare_stock_daily_mapper import TuShareStockDailyMapper
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class TokenBucket:
@@ -103,7 +103,10 @@ class TuShareStockDailyGateway(StockDailyGateway):
             start_str = batch_start.strftime("%Y%m%d")
             end_str = batch_end.strftime("%Y%m%d")
             logger.debug(
-                f"[{ts_code}] 拉取批次 {start_str} -> {end_str}"
+                "拉取日线批次",
+                ts_code=ts_code,
+                start_date=start_str,
+                end_date=end_str,
             )
 
             daily_data = await self._fetch_api(
@@ -111,7 +114,12 @@ class TuShareStockDailyGateway(StockDailyGateway):
             )
             if not daily_data:
                 # 本批次无交易数据，跳过后续两个接口的请求
-                logger.debug(f"[{ts_code}] 批次 {start_str} -> {end_str} 无数据，跳过")
+                logger.debug(
+                    "批次无数据，跳过",
+                    ts_code=ts_code,
+                    start_date=start_str,
+                    end_date=end_str,
+                )
                 continue
 
             adj_data = await self._fetch_api(
@@ -129,18 +137,24 @@ class TuShareStockDailyGateway(StockDailyGateway):
             return []
 
         logger.info(
-            f"[{ts_code}] 共拉取 {len(all_daily)} 条日线、"
-            f"{len(all_adj)} 条复权、{len(all_basic)} 条基本面数据"
+            "单只股票日线拉取完成",
+            ts_code=ts_code,
+            daily_count=len(all_daily),
+            adj_count=len(all_adj),
+            basic_count=len(all_basic),
         )
         return self._mapper.merge_to_stock_daily(ts_code, all_daily, all_adj, all_basic)
 
     async def fetch_daily_all_by_date(self, trade_date: date) -> list[StockDaily]:
         date_str = trade_date.strftime("%Y%m%d")
-        # 实际全市场约 5000 只，通常不用分页。为了健壮，TuShare 若后续需要分页则在此处实现循环拉取
-        # 当前基于 TuShare 文档，传入 trade_date 一次性返回当日所有股票数据
-        
+        logger.info("全市场按日拉取开始", trade_date=date_str)
+
         daily_data = await self._fetch_api("daily", trade_date=date_str)
         if not daily_data:
+            logger.info(
+                "全市场按日拉取无数据",
+                trade_date=date_str,
+            )
             return []
 
         adj_data = await self._fetch_api("adj_factor", trade_date=date_str)
@@ -175,5 +189,11 @@ class TuShareStockDailyGateway(StockDailyGateway):
             if d:
                 stocks = self._mapper.merge_to_stock_daily(code, d, a, b)
                 result.extend(stocks)
-                
+
+        logger.info(
+            "全市场按日拉取完成",
+            trade_date=date_str,
+            record_count=len(result),
+            stock_count=len(codes),
+        )
         return result

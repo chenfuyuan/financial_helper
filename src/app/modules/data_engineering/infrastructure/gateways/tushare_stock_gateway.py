@@ -24,7 +24,7 @@ class TuShareStockGateway(StockGateway):
             pro = ts.pro_api(self._token)
             df = pro.stock_basic(
                 exchange="",
-                list_status="",
+                list_status="L,D,P",
                 fields="ts_code,symbol,name,market,area,industry,list_date,list_status",
             )
             if df is None or df.empty:
