@@ -45,7 +45,10 @@
 **进行代码开发、实现功能、改 Bug、写测试时**，请先阅读：
 
 - **`guide/development-conventions.md`** — 架构、目录约定、数据库规范、命令、关键约束、架构守护、测试与验证等开发规范。
+- 注释要编写的详细
+- 日志要编写的完整，便于排查问题
 - 编辑 `src/**/*.py` 时代入 **`guide/architecture.md`**，编辑 `tests/**/*.py` 时代入 **`guide/testing.md`**。
+- 任务运行到最后，需要运行cicd 保证提交代码到远端通过 cicd
 
 ## 节省 Token（AI 操作）
 
