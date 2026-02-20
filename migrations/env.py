@@ -17,6 +17,7 @@ from app.config import settings
 from app.modules.data_engineering.infrastructure.models.stock_basic_model import StockBasicModel  # noqa: F401
 from app.modules.data_engineering.infrastructure.models.stock_daily_model import StockDailyModel
 from app.modules.data_engineering.infrastructure.models.stock_daily_sync_failure_model import StockDailySyncFailureModel
+from app.modules.data_engineering.infrastructure.models.financial_indicator_model import FinancialIndicatorModel  # noqa: F401
 from app.shared_kernel.infrastructure.database import Base
 
 config = context.config
