@@ -84,8 +84,11 @@ class SqlAlchemyStockBasicRepository(
             )
             await self._session.execute(stmt)
 
-    async def find_by_third_codes(self, source: DataSource, third_codes: list[str]) -> list[StockBasic]:
+    async def find_by_third_codes(
+        self, source: DataSource, third_codes: list[str]
+    ) -> list[StockBasic]:
         from sqlalchemy import select
+
         stmt = select(StockBasicModel).where(
             StockBasicModel.source == source.value,
             StockBasicModel.third_code.in_(third_codes),
@@ -95,6 +98,7 @@ class SqlAlchemyStockBasicRepository(
 
     async def find_all_listed(self, source: DataSource) -> list[StockBasic]:
         from sqlalchemy import select
+
         stmt = select(StockBasicModel).where(
             StockBasicModel.source == source.value,
             StockBasicModel.status == StockStatus.LISTED.value,
@@ -104,6 +108,7 @@ class SqlAlchemyStockBasicRepository(
 
     async def find_all(self, source: DataSource) -> list[StockBasic]:
         from sqlalchemy import select
+
         stmt = select(StockBasicModel).where(
             StockBasicModel.source == source.value,
         )

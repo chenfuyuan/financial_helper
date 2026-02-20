@@ -34,9 +34,7 @@ def app_with_mocks():
     increment_handler.handle.return_value = _R
 
     app.dependency_overrides[get_sync_finance_indicator_full_handler] = lambda: full_handler
-    app.dependency_overrides[get_sync_finance_indicator_by_stock_handler] = (
-        lambda: by_stock_handler
-    )
+    app.dependency_overrides[get_sync_finance_indicator_by_stock_handler] = lambda: by_stock_handler
     app.dependency_overrides[get_sync_finance_indicator_increment_handler] = (
         lambda: increment_handler
     )

@@ -97,26 +97,29 @@ class TestSqlAlchemyStockBasicRepository:
                 select(StockBasicModel).where(StockBasicModel.third_code == "000001.SZ")
             )
             rows = result.scalars().all()
+
     async def test_find_by_third_codes_and_all_listed(self, engine_and_session) -> None:
         _engine, session_factory = engine_and_session
         async with session_factory() as session:
             repo = SqlAlchemyStockBasicRepository(session)
-            
+
             stock1 = _make_stock(third_code="000001.SZ")
             stock2 = _make_stock(third_code="000002.SZ")
             stock3 = _make_stock(third_code="000003.SZ")
             stock3.status = StockStatus.DELISTED  # stock3 已退市
-            
+
             await repo.upsert_many([stock1, stock2, stock3])
             await session.commit()
-            
+
             # 测试 find_by_third_codes
-            found_codes = await repo.find_by_third_codes(DataSource.TUSHARE, ["000001.SZ", "000003.SZ"])
+            found_codes = await repo.find_by_third_codes(
+                DataSource.TUSHARE, ["000001.SZ", "000003.SZ"]
+            )
             assert len(found_codes) == 2
             codes = [s.third_code for s in found_codes]
             assert "000001.SZ" in codes
             assert "000003.SZ" in codes
-            
+
             # 测试 find_all_listed
             listed_stocks = await repo.find_all_listed(DataSource.TUSHARE)
             assert len(listed_stocks) == 2
@@ -124,7 +127,7 @@ class TestSqlAlchemyStockBasicRepository:
             assert "000001.SZ" in listed_codes
             assert "000002.SZ" in listed_codes
             assert "000003.SZ" not in listed_codes
-            
+
             # 测试 find_all（包含所有状态）
             all_stocks = await repo.find_all(DataSource.TUSHARE)
             assert len(all_stocks) == 3

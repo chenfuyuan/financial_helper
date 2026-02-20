@@ -1,6 +1,7 @@
 """财务指标持久化 Mapper：领域实体 ↔ ORM 字典。"""
 
-from dataclasses import asdict, fields as dc_fields
+from dataclasses import asdict
+from dataclasses import fields as dc_fields
 from decimal import Decimal
 
 from app.modules.data_engineering.domain.entities.financial_indicator import FinancialIndicator

@@ -1,6 +1,5 @@
 """Concept SQLAlchemy 仓储实现。"""
 
-from typing import Any
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,7 +27,11 @@ class SqlAlchemyConceptRepository(ConceptRepository):
         )
 
     async def find_all(self, source: DataSource) -> list[Concept]:
-        stmt = select(ConceptModel).where(ConceptModel.source == source.value).order_by(ConceptModel.id.asc())
+        stmt = (
+            select(ConceptModel)
+            .where(ConceptModel.source == source.value)
+            .order_by(ConceptModel.id.asc())
+        )
         result = await self._session.execute(stmt)
         return [self._to_entity(m) for m in result.scalars().all()]
 

@@ -53,7 +53,7 @@ async def sync_stock_daily_history(
     ts_codes = request.ts_codes if request else None
     result = await handler.handle(SyncStockDailyHistory(ts_codes=ts_codes))
     duration_ms = int((time.perf_counter() - start) * 1000)
-    
+
     return ApiResponse.success(
         data={
             "total": result.total,
@@ -75,7 +75,7 @@ async def sync_stock_daily_increment(
     trade_date = request.trade_date if request else None
     result = await handler.handle(SyncStockDailyIncrement(trade_date=trade_date))
     duration_ms = int((time.perf_counter() - start) * 1000)
-    
+
     return ApiResponse.success(
         data={
             "trade_date": result.trade_date.isoformat(),
@@ -97,7 +97,7 @@ async def retry_stock_daily_sync_failures(
     max_retries = request.max_retries if request else 3
     result = await handler.handle(RetryStockDailySyncFailures(max_retries=max_retries))
     duration_ms = int((time.perf_counter() - start) * 1000)
-    
+
     return ApiResponse.success(
         data={
             "total": result.total,

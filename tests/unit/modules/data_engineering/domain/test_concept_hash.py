@@ -9,7 +9,7 @@ from app.modules.data_engineering.domain.value_objects.data_source import DataSo
 def test_concept_hash_computation() -> None:
     # 1. 直接计算函数结果正确
     hash_value = Concept.calculate_content_hash(DataSource.AKSHARE, "BK0818", "人工智能")
-    expected = sha256("AKSHARE|BK0818|人工智能".encode("utf-8")).hexdigest()[:16]
+    expected = sha256("AKSHARE|BK0818|人工智能".encode()).hexdigest()[:16]
     assert hash_value == expected
 
     # 2. 字段相同时哈希值相同

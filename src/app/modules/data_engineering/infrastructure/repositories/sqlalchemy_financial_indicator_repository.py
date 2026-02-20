@@ -2,7 +2,7 @@
 
 from datetime import date
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -44,9 +44,7 @@ class SqlAlchemyFinancialIndicatorRepository(FinancialIndicatorRepository):
             seen.add(key)
             deduped.append(r)
 
-        batch = [
-            self._mapper.to_dict(r) for r in deduped
-        ]
+        batch = [self._mapper.to_dict(r) for r in deduped]
 
         # 按 PostgreSQL/SQLite 分批处理
         dialect = self._session.get_bind().dialect.name

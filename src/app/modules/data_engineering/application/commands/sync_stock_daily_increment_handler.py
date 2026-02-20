@@ -15,9 +15,7 @@ from .sync_stock_daily_increment import SyncIncrementResult, SyncStockDailyIncre
 logger = get_logger(__name__)
 
 
-class SyncStockDailyIncrementHandler(
-    CommandHandler[SyncStockDailyIncrement, SyncIncrementResult]
-):
+class SyncStockDailyIncrementHandler(CommandHandler[SyncStockDailyIncrement, SyncIncrementResult]):
     """增量同步 Handler。整体事务，失败即回滚抛异常。"""
 
     def __init__(

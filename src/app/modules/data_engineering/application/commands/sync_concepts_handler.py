@@ -1,10 +1,11 @@
-"""SyncConcepts 命令处理器。"""
-
+from collections.abc import Mapping
 from dataclasses import replace
 from datetime import UTC, datetime
 from time import perf_counter
+from typing import Any
 
 from app.modules.data_engineering.domain.entities.concept_stock import ConceptStock
+from app.modules.data_engineering.domain.entities.stock_basic import StockBasic
 from app.modules.data_engineering.domain.gateways.concept_gateway import ConceptGateway
 from app.modules.data_engineering.domain.repositories.concept_repository import ConceptRepository
 from app.modules.data_engineering.domain.repositories.concept_stock_repository import (
@@ -60,7 +61,9 @@ class SyncConceptsHandler(CommandHandler[SyncConcepts, SyncConceptsResult]):
             local = local_map.get(third_code)
             if local is None:
                 saved = await self._concept_repo.save(replace(remote, last_synced_at=now))
-                n, m, d = await self._sync_concept_stocks(saved.id or 0, remote.name, remote.third_code, {}, symbol_map, third_code_map)
+                n, m, d = await self._sync_concept_stocks(
+                    saved.id or 0, remote.name, remote.third_code, {}, symbol_map, third_code_map
+                )
                 # 每个新题材同步完立即提交
                 await self._uow.commit()
                 new_concepts += 1
@@ -123,8 +126,8 @@ class SyncConceptsHandler(CommandHandler[SyncConcepts, SyncConceptsResult]):
         concept_name: str,
         concept_third_code: str,
         local_map: dict[str, ConceptStock],
-        symbol_map: dict[str, object],
-        third_code_map: dict[str, object],
+        symbol_map: Mapping[str, StockBasic],
+        third_code_map: Mapping[str, StockBasic],
     ) -> tuple[int, int, int]:
         remote_tuples = await self._gateway.fetch_concept_stocks(concept_third_code, concept_name)
         # 构建实际使用的third_code集合，用于删除逻辑
@@ -143,17 +146,27 @@ class SyncConceptsHandler(CommandHandler[SyncConcepts, SyncConceptsResult]):
         deleted_count = 0
 
         for stock_third_code, _stock_name in remote_tuples:
-            # AKShare返回的代码实际上对应symbol字段，不需要转换
+            # AKShare返回的代码可能需要格式转换才能匹配symbol
             stock_symbol = stock_third_code
-            # 直接按symbol匹配
+            matched_stock = None
+
+            # 首先尝试直接匹配symbol
             if stock_symbol in symbol_map:
-                # 从symbol_map中获取对应的third_code用于存储
                 matched_stock = symbol_map[stock_symbol]
-                actual_third_code = matched_stock.third_code
             else:
-                # 如果symbol匹配不上，跳过这个股票
+                # 尝试添加市场后缀匹配（如000001 -> 000001.SZ）
+                for suffix in [".SZ", ".SH", ".BJ"]:
+                    candidate = stock_symbol + suffix
+                    if candidate in symbol_map:
+                        matched_stock = symbol_map[candidate]
+                        break
+
+            # 如果仍然匹配不上，跳过这个股票
+            if matched_stock is None:
                 continue
-            
+
+            actual_third_code = matched_stock.third_code
+
             content_hash = ConceptStock.compute_hash(
                 DataSource.AKSHARE,
                 actual_third_code,

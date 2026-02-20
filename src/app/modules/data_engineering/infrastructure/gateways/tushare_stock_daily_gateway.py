@@ -44,7 +44,7 @@ class TokenBucket:
             # 计算需要等待的时间
             wait_time = (1.0 - self._tokens) / self._refill_rate
             await asyncio.sleep(wait_time)
-            
+
             # 等待后直接扣除
             self._tokens = 0.0
             self._last_refill = asyncio.get_running_loop().time()
@@ -164,12 +164,12 @@ class TuShareStockDailyGateway(StockDailyGateway):
         # 为了复用 mapper，这里我们先按 ts_code 分组，然后再合并
         result = []
         codes = {r.get("ts_code") for r in daily_data if r.get("ts_code")}
-        
+
         # 将三份数据建立 {ts_code: [rows]} 的索引
         daily_by_code: dict[str, list[dict]] = {c: [] for c in codes}
         adj_by_code: dict[str, list[dict]] = {c: [] for c in codes}
         basic_by_code: dict[str, list[dict]] = {c: [] for c in codes}
-        
+
         for r in daily_data:
             if c := str(r.get("ts_code")):
                 daily_by_code[c].append(r)

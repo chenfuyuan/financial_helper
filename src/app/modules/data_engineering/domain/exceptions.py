@@ -1,7 +1,6 @@
 """领域异常，供网关解析/网络失败时抛出。"""
 
-from app.shared_kernel.domain.exception import DomainException
-from app.shared_kernel.domain.exception import NotFoundException
+from app.shared_kernel.domain.exception import DomainException, NotFoundException
 
 
 class ExternalStockServiceError(DomainException):

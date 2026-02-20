@@ -41,9 +41,7 @@ class SyncFinanceIndicatorIncrementHandler(
         self._gateway = gateway
         self._uow = uow
 
-    async def handle(
-        self, command: SyncFinanceIndicatorIncrement
-    ) -> SyncFinanceIndicatorResult:
+    async def handle(self, command: SyncFinanceIndicatorIncrement) -> SyncFinanceIndicatorResult:
         if command.ts_codes:
             stocks = await self._basic_repo.find_by_third_codes(
                 DataSource.TUSHARE, command.ts_codes

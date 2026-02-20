@@ -1,4 +1,5 @@
 """CQRS 查询侧：Query DTO 与 QueryHandler。"""
+
 """概念查询应用层对象。"""
 
 from .get_concept_stocks import GetConceptStocks

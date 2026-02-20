@@ -11,7 +11,7 @@ from app.modules.data_engineering.infrastructure.gateways.mappers.tushare_stock_
 
 def test_merge_daily_data():
     mapper = TuShareStockDailyMapper()
-    
+
     daily_row = {
         "ts_code": "000001.SZ",
         "trade_date": "20260220",
@@ -25,13 +25,13 @@ def test_merge_daily_data():
         "vol": "100.0",
         "amount": "1000.0",
     }
-    
+
     adj_row = {
         "ts_code": "000001.SZ",
         "trade_date": "20260220",
         "adj_factor": "1.5",
     }
-    
+
     basic_row = {
         "ts_code": "000001.SZ",
         "trade_date": "20260220",
@@ -51,9 +51,9 @@ def test_merge_daily_data():
         "total_mv": "100000.0",
         "circ_mv": "50000.0",
     }
-    
+
     result = mapper.merge_to_stock_daily("000001.SZ", [daily_row], [adj_row], [basic_row])
-    
+
     assert len(result) == 1
     stock = result[0]
     assert stock.third_code == "000001.SZ"
@@ -65,7 +65,7 @@ def test_merge_daily_data():
 
 def test_merge_missing_daily_basic_fields():
     mapper = TuShareStockDailyMapper()
-    
+
     daily_row = {
         "ts_code": "000001.SZ",
         "trade_date": "20260220",
@@ -79,13 +79,13 @@ def test_merge_missing_daily_basic_fields():
         "vol": "100.0",
         "amount": "1000.0",
     }
-    
+
     adj_row = {
         "ts_code": "000001.SZ",
         "trade_date": "20260220",
         "adj_factor": "1.5",
     }
-    
+
     # 模拟停牌股，daily_basic 缺乏数据或为 None
     basic_row = {
         "ts_code": "000001.SZ",
@@ -94,7 +94,7 @@ def test_merge_missing_daily_basic_fields():
         "pe": None,
         # missing volume_ratio
     }
-    
+
     result = mapper.merge_to_stock_daily("000001.SZ", [daily_row], [adj_row], [basic_row])
     assert len(result) == 1
     stock = result[0]
@@ -105,13 +105,13 @@ def test_merge_missing_daily_basic_fields():
 
 def test_missing_required_daily_fields_raises_error():
     mapper = TuShareStockDailyMapper()
-    
+
     daily_row = {
         "ts_code": "000001.SZ",
         "trade_date": "20260220",
         # missing open
     }
     adj_row = {"ts_code": "000001.SZ", "trade_date": "20260220", "adj_factor": "1.5"}
-    
+
     with pytest.raises(ExternalStockServiceError, match="Missing required field: open"):
         mapper.merge_to_stock_daily("000001.SZ", [daily_row], [adj_row], [])

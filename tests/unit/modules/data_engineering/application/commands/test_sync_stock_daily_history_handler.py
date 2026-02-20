@@ -75,10 +75,8 @@ def _make_stock(ts_code: str, list_date: date) -> StockBasic:
 async def test_history_sync_first_time(mock_date, handler, mock_basic_repo, mock_gateway):
     """测试首次同步：无最新日期，从上市日期同步到今天"""
     mock_date.today.return_value = date(2026, 2, 20)
-    
-    mock_basic_repo.find_by_third_codes.return_value = [
-        _make_stock("000001.SZ", date(2026, 2, 18))
-    ]
+
+    mock_basic_repo.find_by_third_codes.return_value = [_make_stock("000001.SZ", date(2026, 2, 18))]
     mock_gateway.fetch_stock_daily.return_value = [MagicMock()]
 
     cmd = SyncStockDailyHistory(ts_codes=["000001.SZ"])

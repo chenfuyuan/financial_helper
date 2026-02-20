@@ -86,9 +86,7 @@ class SyncStockDailyHistoryHandler(CommandHandler[SyncStockDailyHistory, SyncHis
                     end_date=str(today),
                 )
 
-                records = await self.gateway.fetch_stock_daily(
-                    stock.third_code, start_date, today
-                )
+                records = await self.gateway.fetch_stock_daily(stock.third_code, start_date, today)
 
                 async with self.uow:
                     if records:

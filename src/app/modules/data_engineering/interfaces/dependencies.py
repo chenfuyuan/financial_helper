@@ -127,6 +127,8 @@ def get_retry_stock_daily_sync_failures_handler(
 def get_sync_finance_indicator_full_handler(
     uow: SqlAlchemyUnitOfWork = Depends(get_uow),
 ):
+    import tushare as ts  # type: ignore[import-untyped]
+
     from app.modules.data_engineering.application.commands.sync_finance_indicator_full_handler import (
         SyncFinanceIndicatorFullHandler,
     )
@@ -136,8 +138,6 @@ def get_sync_finance_indicator_full_handler(
     from app.modules.data_engineering.infrastructure.repositories.sqlalchemy_financial_indicator_repository import (
         SqlAlchemyFinancialIndicatorRepository,
     )
-
-    import tushare as ts  # type: ignore[import-untyped]
 
     pro = ts.pro_api(settings.TUSHARE_TOKEN)
     return SyncFinanceIndicatorFullHandler(
@@ -151,6 +151,8 @@ def get_sync_finance_indicator_full_handler(
 def get_sync_finance_indicator_by_stock_handler(
     uow: SqlAlchemyUnitOfWork = Depends(get_uow),
 ):
+    import tushare as ts  # type: ignore[import-untyped]
+
     from app.modules.data_engineering.application.commands.sync_finance_indicator_by_stock_handler import (
         SyncFinanceIndicatorByStockHandler,
     )
@@ -160,8 +162,6 @@ def get_sync_finance_indicator_by_stock_handler(
     from app.modules.data_engineering.infrastructure.repositories.sqlalchemy_financial_indicator_repository import (
         SqlAlchemyFinancialIndicatorRepository,
     )
-
-    import tushare as ts  # type: ignore[import-untyped]
 
     pro = ts.pro_api(settings.TUSHARE_TOKEN)
     return SyncFinanceIndicatorByStockHandler(
@@ -174,6 +174,8 @@ def get_sync_finance_indicator_by_stock_handler(
 def get_sync_finance_indicator_increment_handler(
     uow: SqlAlchemyUnitOfWork = Depends(get_uow),
 ):
+    import tushare as ts  # type: ignore[import-untyped]
+
     from app.modules.data_engineering.application.commands.sync_finance_indicator_increment_handler import (
         SyncFinanceIndicatorIncrementHandler,
     )
@@ -183,8 +185,6 @@ def get_sync_finance_indicator_increment_handler(
     from app.modules.data_engineering.infrastructure.repositories.sqlalchemy_financial_indicator_repository import (
         SqlAlchemyFinancialIndicatorRepository,
     )
-
-    import tushare as ts  # type: ignore[import-untyped]
 
     pro = ts.pro_api(settings.TUSHARE_TOKEN)
     return SyncFinanceIndicatorIncrementHandler(

@@ -26,9 +26,7 @@ class TuShareFinanceIndicatorGateway(FinancialIndicatorGateway):
         self._bucket = TokenBucket(capacity=rate_limit, tokens_per_minute=rate_limit)
         self._mapper = TuShareFinanceIndicatorMapper()
 
-    async def fetch_by_stock(
-        self, ts_code: str, start_date: date | None = None
-    ) -> list:
+    async def fetch_by_stock(self, ts_code: str, start_date: date | None = None) -> list:
         results, offset = [], 0
         while True:
             await self._bucket.acquire()
@@ -36,9 +34,7 @@ class TuShareFinanceIndicatorGateway(FinancialIndicatorGateway):
             if start_date:
                 kw["start_date"] = start_date.strftime("%Y%m%d")
 
-            rows = (
-                await asyncio.to_thread(self._pro.fina_indicator, **kw)
-            ).to_dict("records")
+            rows = (await asyncio.to_thread(self._pro.fina_indicator, **kw)).to_dict("records")
 
             if not rows:
                 break

@@ -27,7 +27,7 @@ async def test_upsert_many_and_get_latest_date(engine_and_session):
     engine, session_factory = engine_and_session
     async with session_factory() as db_session:
         repository = SqlAlchemyStockDailyRepository(db_session)
-        
+
         # 1. 验证空表查 latest
         latest = await repository.get_latest_trade_date(DataSource.TUSHARE, "000001.SZ")
         assert latest is None
@@ -135,4 +135,3 @@ async def test_upsert_many_and_get_latest_date(engine_and_session):
         )
         await repository.upsert_many([daily1_updated])
         await db_session.commit()
-

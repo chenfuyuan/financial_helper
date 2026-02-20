@@ -5,17 +5,17 @@ from fastapi import APIRouter, FastAPI
 
 def _collect_module_routers() -> list[tuple[APIRouter, str]]:
     """收集所有模块的 Router 及其前缀。新增模块时在此追加即可，main.py 无需修改。"""
+    from app.modules.data_engineering.interfaces.api.concept_router import (
+        router as concept_router,
+    )
+    from app.modules.data_engineering.interfaces.api.finance_indicator_router import (
+        router as finance_indicator_router,
+    )
     from app.modules.data_engineering.interfaces.api.stock_basic_router import (
         router as stock_basic_router,
     )
     from app.modules.data_engineering.interfaces.api.stock_daily_router import (
         router as stock_daily_router,
-    )
-    from app.modules.data_engineering.interfaces.api.finance_indicator_router import (
-        router as finance_indicator_router,
-    )
-    from app.modules.data_engineering.interfaces.api.concept_router import (
-        router as concept_router,
     )
 
     return [
