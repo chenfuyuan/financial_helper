@@ -20,18 +20,6 @@ from app.shared_kernel.domain.unit_of_work import UnitOfWork
 from .sync_concepts import SyncConcepts, SyncConceptsResult
 
 
-def _build_candidate_symbol(raw_code: str) -> str | None:
-    if not raw_code:
-        return None
-    if raw_code.startswith("6"):
-        return f"{raw_code}.SH"
-    if raw_code.startswith("0") or raw_code.startswith("3"):
-        return f"{raw_code}.SZ"
-    if raw_code.startswith("4") or raw_code.startswith("8"):
-        return f"{raw_code}.BJ"
-    return None
-
-
 class SyncConceptsHandler(CommandHandler[SyncConcepts, SyncConceptsResult]):
     def __init__(
         self,
@@ -139,7 +127,13 @@ class SyncConceptsHandler(CommandHandler[SyncConcepts, SyncConceptsResult]):
         third_code_map: dict[str, object],
     ) -> tuple[int, int, int]:
         remote_tuples = await self._gateway.fetch_concept_stocks(concept_third_code, concept_name)
-        remote_codes = {code for code, _ in remote_tuples}
+        # 构建实际使用的third_code集合，用于删除逻辑
+        remote_actual_third_codes = set()
+        for stock_third_code, _stock_name in remote_tuples:
+            stock_symbol = stock_third_code
+            if stock_symbol in symbol_map:
+                matched_stock = symbol_map[stock_symbol]
+                remote_actual_third_codes.add(matched_stock.third_code)
 
         to_upsert: list[ConceptStock] = []
         to_delete_ids: list[int] = []
@@ -149,27 +143,30 @@ class SyncConceptsHandler(CommandHandler[SyncConcepts, SyncConceptsResult]):
         deleted_count = 0
 
         for stock_third_code, _stock_name in remote_tuples:
-            candidate = _build_candidate_symbol(stock_third_code)
-            stock_symbol = None
-            # 优先按symbol匹配
-            if candidate and candidate in symbol_map:
-                stock_symbol = candidate
-            # 回退按third_code匹配
-            elif stock_third_code in third_code_map:
-                stock_symbol = candidate
+            # AKShare返回的代码实际上对应symbol字段，不需要转换
+            stock_symbol = stock_third_code
+            # 直接按symbol匹配
+            if stock_symbol in symbol_map:
+                # 从symbol_map中获取对应的third_code用于存储
+                matched_stock = symbol_map[stock_symbol]
+                actual_third_code = matched_stock.third_code
+            else:
+                # 如果symbol匹配不上，跳过这个股票
+                continue
+            
             content_hash = ConceptStock.compute_hash(
                 DataSource.AKSHARE,
-                stock_third_code,
+                actual_third_code,
                 stock_symbol,
             )
-            local = local_map.get(stock_third_code)
+            local = local_map.get(actual_third_code)
             if local is None:
                 to_upsert.append(
                     ConceptStock(
                         id=None,
                         concept_id=concept_id,
                         source=DataSource.AKSHARE,
-                        stock_third_code=stock_third_code,
+                        stock_third_code=actual_third_code,
                         stock_symbol=stock_symbol,
                         content_hash=content_hash,
                         added_at=now,
@@ -183,7 +180,7 @@ class SyncConceptsHandler(CommandHandler[SyncConcepts, SyncConceptsResult]):
                         id=local.id,
                         concept_id=concept_id,
                         source=DataSource.AKSHARE,
-                        stock_third_code=stock_third_code,
+                        stock_third_code=actual_third_code,
                         stock_symbol=stock_symbol,
                         content_hash=content_hash,
                         added_at=local.added_at,
@@ -192,7 +189,7 @@ class SyncConceptsHandler(CommandHandler[SyncConcepts, SyncConceptsResult]):
                 modified_count += 1
 
         for code, local in local_map.items():
-            if code in remote_codes:
+            if code in remote_actual_third_codes:
                 continue
             if local.id is not None:
                 to_delete_ids.append(local.id)
