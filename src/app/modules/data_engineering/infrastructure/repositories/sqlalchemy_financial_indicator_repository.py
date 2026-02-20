@@ -28,30 +28,43 @@ class SqlAlchemyFinancialIndicatorRepository(FinancialIndicatorRepository):
 
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+        self._mapper = FinancialIndicatorPersistenceMapper()
 
     async def upsert_many(self, records: list[FinancialIndicator]) -> None:
         if not records:
             return
-        rows = [FinancialIndicatorPersistenceMapper.to_dict(r) for r in records]
+
+        # 按唯一键去重：保留最后一条（最新数据）
+        seen = set()
+        deduped = []
+        for r in records:
+            key = (r.source.value, r.third_code, r.end_date)
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(r)
+
+        batch = [
+            self._mapper.to_persistence_dict(r) for r in deduped
+        ]
+
+        # 按 PostgreSQL/SQLite 分批处理
         dialect = self._session.get_bind().dialect.name
+        update_cols = {k: v for k, v in batch[0].items() if k not in CONFLICT_COLS}
 
-        for i in range(0, len(rows), BATCH_SIZE):
-            batch = rows[i : i + BATCH_SIZE]
-            update_cols = {k: v for k, v in batch[0].items() if k not in CONFLICT_COLS}
-
-            if dialect == "postgresql":
-                stmt = (
-                    pg_insert(FinancialIndicatorModel)
-                    .values(batch)
-                    .on_conflict_do_update(index_elements=CONFLICT_COLS, set_=update_cols)
-                )
-            else:
-                stmt = (
-                    sqlite_insert(FinancialIndicatorModel)
-                    .values(batch)
-                    .on_conflict_do_update(index_elements=CONFLICT_COLS, set_=update_cols)
-                )
-            await self._session.execute(stmt)
+        if dialect == "postgresql":
+            stmt = (
+                pg_insert(FinancialIndicatorModel)
+                .values(batch)
+                .on_conflict_do_update(index_elements=CONFLICT_COLS, set_=update_cols)
+            )
+        else:
+            stmt = (
+                sqlite_insert(FinancialIndicatorModel)
+                .values(batch)
+                .on_conflict_do_update(index_elements=CONFLICT_COLS, set_=update_cols)
+            )
+        await self._session.execute(stmt)
 
     async def get_latest_end_date(self, source: DataSource, third_code: str) -> date | None:
         stmt = select(func.max(FinancialIndicatorModel.end_date)).where(
