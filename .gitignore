@@ -80,3 +80,4 @@ logs/
 !.cursor/rules/
 .windsurf/
 .agent/
+.agents/
