@@ -13,7 +13,7 @@ from app.modules.data_engineering.interfaces.dependencies import (
     get_sync_finance_indicator_increment_handler,
 )
 
-router = APIRouter(prefix="/finance-indicator", tags=["finance-indicator"])
+router = APIRouter(prefix="/data-engineering/finance-indicator", tags=["finance-indicator"])
 
 
 @router.post("/sync/full")

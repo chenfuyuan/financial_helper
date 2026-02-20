@@ -46,7 +46,7 @@ class SyncStockDailyHistoryHandler(CommandHandler[SyncStockDailyHistory, SyncHis
         if command.ts_codes:
             stocks = await self.basic_repo.find_by_third_codes(DataSource.TUSHARE, command.ts_codes)
         else:
-            stocks = await self.basic_repo.find_all_listed(DataSource.TUSHARE)
+            stocks = await self.basic_repo.find_all(DataSource.TUSHARE)
 
         today = date.today()
         logger.info(

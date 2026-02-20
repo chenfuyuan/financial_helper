@@ -49,7 +49,7 @@ class SyncFinanceIndicatorIncrementHandler(
                 DataSource.TUSHARE, command.ts_codes
             )
         else:
-            stocks = await self._basic_repo.find_all_listed(DataSource.TUSHARE)
+            stocks = await self._basic_repo.find_all(DataSource.TUSHARE)
 
         logger.info(
             "财务指标增量同步开始",
