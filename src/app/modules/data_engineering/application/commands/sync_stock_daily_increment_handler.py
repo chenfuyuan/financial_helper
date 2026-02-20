@@ -3,12 +3,12 @@
 import logging
 from datetime import date, timedelta
 
-from app.shared_kernel.application.command_handler import CommandHandler
-from app.shared_kernel.domain.unit_of_work import UnitOfWork
 from app.modules.data_engineering.domain.gateways.stock_daily_gateway import StockDailyGateway
 from app.modules.data_engineering.domain.repositories.stock_daily_repository import (
     StockDailyRepository,
 )
+from app.shared_kernel.application.command_handler import CommandHandler
+from app.shared_kernel.domain.unit_of_work import UnitOfWork
 
 from .sync_stock_daily_increment import SyncIncrementResult, SyncStockDailyIncrement
 

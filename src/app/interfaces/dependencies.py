@@ -17,6 +17,15 @@ def get_mediator(request: Request) -> Mediator:
 
 
 async def get_uow(request: Request) -> AsyncGenerator[SqlAlchemyUnitOfWork, None]:
+    """创建一个请求级别的 session，并将其传入 UoW。
+
+    Session 在整个请求生命周期内唯一，UoW 仅管理事务边界，
+    从而保证 repository 和 uow.commit() 始终操作同一个 session。
+    """
     db: Database = request.app.state.db
-    async with SqlAlchemyUnitOfWork(db.session_factory) as uow:
+    session = db.session_factory()
+    try:
+        uow = SqlAlchemyUnitOfWork(session)
         yield uow
+    finally:
+        await session.close()

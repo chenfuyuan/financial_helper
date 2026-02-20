@@ -18,13 +18,17 @@ class TokenBucket:
         self._capacity = capacity
         self._tokens = float(capacity)
         self._refill_rate = tokens_per_minute / 60.0  # tokens per second
-        self._last_refill = asyncio.get_event_loop().time()
-        self._lock = asyncio.Lock()
+        self._last_refill: float = 0.0
+        self._lock: asyncio.Lock | None = None
 
     async def acquire(self) -> None:
         """获取一个令牌，若不足则等待。"""
+        if self._lock is None:
+            self._lock = asyncio.Lock()
+            self._last_refill = asyncio.get_running_loop().time()
+
         async with self._lock:
-            now = asyncio.get_event_loop().time()
+            now = asyncio.get_running_loop().time()
             # 补充令牌
             elapsed = now - self._last_refill
             self._tokens = min(self._capacity, self._tokens + elapsed * self._refill_rate)
@@ -40,7 +44,7 @@ class TokenBucket:
             
             # 等待后直接扣除
             self._tokens = 0.0
-            self._last_refill = asyncio.get_event_loop().time()
+            self._last_refill = asyncio.get_running_loop().time()
 
 
 class TuShareStockDailyGateway(StockDailyGateway):
@@ -117,13 +121,13 @@ class TuShareStockDailyGateway(StockDailyGateway):
             if c := str(r.get("ts_code")):
                 daily_by_code[c].append(r)
         for r in adj_data:
-            if c := str(r.get("ts_code")):
-                if c in adj_by_code:
-                    adj_by_code[c].append(r)
+            c = str(r.get("ts_code"))
+            if c and c in adj_by_code:
+                adj_by_code[c].append(r)
         for r in basic_data:
-            if c := str(r.get("ts_code")):
-                if c in basic_by_code:
-                    basic_by_code[c].append(r)
+            c = str(r.get("ts_code"))
+            if c and c in basic_by_code:
+                basic_by_code[c].append(r)
 
         for code in codes:
             d = daily_by_code.get(code, [])

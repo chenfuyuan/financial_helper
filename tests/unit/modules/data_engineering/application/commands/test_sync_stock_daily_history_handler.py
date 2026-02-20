@@ -1,7 +1,7 @@
-import pytest
 from datetime import date
-from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from app.modules.data_engineering.application.commands.sync_stock_daily_history import (
     SyncStockDailyHistory,

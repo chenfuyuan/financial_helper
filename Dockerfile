@@ -7,11 +7,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml ./
-COPY src ./src
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-RUN pip install --no-cache-dir .
+
+COPY pyproject.toml ./
+RUN mkdir -p src/app && touch src/app/__init__.py
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install .
+
+COPY src ./src
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install .
 
 # Stage 2: Runtime
 FROM python:3.11-slim

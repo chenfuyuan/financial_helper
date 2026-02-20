@@ -2,27 +2,26 @@
 
 import time
 from datetime import date
-from typing import Optional
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from app.interfaces.response import ApiResponse
+from app.modules.data_engineering.application.commands.retry_stock_daily_sync_failures_handler import (
+    RetryStockDailySyncFailuresHandler,
+)
 from app.modules.data_engineering.application.commands.sync_stock_daily_history import (
     SyncStockDailyHistory,
+)
+from app.modules.data_engineering.application.commands.sync_stock_daily_history_handler import (
+    SyncStockDailyHistoryHandler,
 )
 from app.modules.data_engineering.application.commands.sync_stock_daily_increment import (
     RetryStockDailySyncFailures,
     SyncStockDailyIncrement,
 )
-from app.modules.data_engineering.application.commands.sync_stock_daily_history_handler import (
-    SyncStockDailyHistoryHandler,
-)
 from app.modules.data_engineering.application.commands.sync_stock_daily_increment_handler import (
     SyncStockDailyIncrementHandler,
-)
-from app.modules.data_engineering.application.commands.retry_stock_daily_sync_failures_handler import (
-    RetryStockDailySyncFailuresHandler,
 )
 from app.modules.data_engineering.interfaces.dependencies import (
     get_retry_stock_daily_sync_failures_handler,
@@ -34,11 +33,11 @@ router = APIRouter(prefix="/data-engineering/stock-daily", tags=["data_engineeri
 
 
 class SyncHistoryRequest(BaseModel):
-    ts_codes: Optional[list[str]] = None
+    ts_codes: list[str] | None = None
 
 
 class SyncIncrementRequest(BaseModel):
-    trade_date: Optional[date] = None
+    trade_date: date | None = None
 
 
 class RetryFailuresRequest(BaseModel):

@@ -1,9 +1,9 @@
 import asyncio
 from datetime import date
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
+
 import pytest
 
-from app.modules.data_engineering.domain.exceptions import ExternalStockServiceError
 from app.modules.data_engineering.infrastructure.gateways.mappers.tushare_stock_daily_mapper import (
     TuShareStockDailyMapper,
 )

@@ -1,10 +1,8 @@
 """重试失败记录 Handler。"""
 
 import logging
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
-from app.shared_kernel.application.command_handler import CommandHandler
-from app.shared_kernel.domain.unit_of_work import UnitOfWork
 from app.modules.data_engineering.domain.gateways.stock_daily_gateway import StockDailyGateway
 from app.modules.data_engineering.domain.repositories.stock_daily_repository import (
     StockDailyRepository,
@@ -12,6 +10,8 @@ from app.modules.data_engineering.domain.repositories.stock_daily_repository imp
 from app.modules.data_engineering.domain.repositories.stock_daily_sync_failure_repository import (
     StockDailySyncFailureRepository,
 )
+from app.shared_kernel.application.command_handler import CommandHandler
+from app.shared_kernel.domain.unit_of_work import UnitOfWork
 
 from .sync_stock_daily_increment import RetryResult, RetryStockDailySyncFailures
 

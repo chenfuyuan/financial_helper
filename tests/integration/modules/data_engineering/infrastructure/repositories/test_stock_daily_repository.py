@@ -1,7 +1,7 @@
-import pytest
 from datetime import date
 from decimal import Decimal
 
+import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.modules.data_engineering.domain.entities.stock_daily import StockDaily

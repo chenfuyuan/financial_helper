@@ -4,6 +4,9 @@ from fastapi import Depends
 
 from app.config import settings
 from app.interfaces.dependencies import get_uow
+from app.modules.data_engineering.application.commands.retry_stock_daily_sync_failures_handler import (
+    RetryStockDailySyncFailuresHandler,
+)
 from app.modules.data_engineering.application.commands.sync_stock_basic_handler import (
     SyncStockBasicHandler,
 )
@@ -12,9 +15,6 @@ from app.modules.data_engineering.application.commands.sync_stock_daily_history_
 )
 from app.modules.data_engineering.application.commands.sync_stock_daily_increment_handler import (
     SyncStockDailyIncrementHandler,
-)
-from app.modules.data_engineering.application.commands.retry_stock_daily_sync_failures_handler import (
-    RetryStockDailySyncFailuresHandler,
 )
 from app.modules.data_engineering.infrastructure.gateways import TuShareStockGateway
 from app.modules.data_engineering.infrastructure.gateways.tushare_stock_daily_gateway import (

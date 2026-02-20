@@ -1,14 +1,11 @@
 """历史同步 Handler。"""
 
-from datetime import date, datetime, timedelta, UTC
 import logging
+from datetime import UTC, date, datetime, timedelta
 
-from app.shared_kernel.application.command_handler import CommandHandler
-from app.shared_kernel.domain.unit_of_work import UnitOfWork
 from app.modules.data_engineering.domain.entities.stock_daily_sync_failure import (
     StockDailySyncFailure,
 )
-from app.modules.data_engineering.domain.exceptions import ExternalStockServiceError
 from app.modules.data_engineering.domain.gateways.stock_daily_gateway import StockDailyGateway
 from app.modules.data_engineering.domain.repositories.stock_basic_repository import (
     StockBasicRepository,
@@ -20,6 +17,8 @@ from app.modules.data_engineering.domain.repositories.stock_daily_sync_failure_r
     StockDailySyncFailureRepository,
 )
 from app.modules.data_engineering.domain.value_objects.data_source import DataSource
+from app.shared_kernel.application.command_handler import CommandHandler
+from app.shared_kernel.domain.unit_of_work import UnitOfWork
 
 from .sync_stock_daily_history import SyncHistoryResult, SyncStockDailyHistory
 
@@ -57,31 +56,42 @@ class SyncStockDailyHistoryHandler(CommandHandler[SyncStockDailyHistory, SyncHis
         synced_days = 0
 
         for stock in stocks:
+            start_date = None
             try:
-                # 独立事务，每只股票单独开启
+                # 1. 独立事务查询最新日期，避免长事务
                 async with self.uow:
                     latest_date = await self.daily_repo.get_latest_trade_date(
                         DataSource.TUSHARE, stock.third_code
                     )
 
-                    start_date = latest_date + timedelta(days=1) if latest_date else stock.list_date
+                start_date = latest_date + timedelta(days=1) if latest_date else stock.list_date
 
-                    if start_date > today:
-                        continue  # 已经是最新
+                if start_date > today:
+                    logger.info(f"[{stock.third_code}] 已经是最新数据，跳过同步 (start_date: {start_date})")
+                    continue  # 已经是最新
 
-                    records = await self.gateway.fetch_stock_daily(
-                        stock.third_code, start_date, today
-                    )
+                logger.info(f"[{stock.third_code}] 开始同步数据，时间范围: {start_date} -> {today}")
 
+                # 2. 网络请求放在事务外
+                records = await self.gateway.fetch_stock_daily(
+                    stock.third_code, start_date, today
+                )
+
+                # 3. 开启新事务写入数据
+                async with self.uow:
                     if records:
                         await self.daily_repo.upsert_many(records)
                         synced_days += len(records)
+                        logger.info(f"[{stock.third_code}] 成功获取并写入 {len(records)} 条数据")
+                    else:
+                        logger.info(f"[{stock.third_code}] 未获取到任何数据")
 
                     await self.uow.commit()
                     success_count += 1
+                    logger.info(f"[{stock.third_code}] 写入完成，已立马提交事务")
 
             except Exception as e:
-                logger.warning(f"Sync stock daily history failed for {stock.third_code}: {e}")
+                logger.error(f"[{stock.third_code}] 同步历史数据失败: {e}", exc_info=True)
                 failure_count += 1
                 # 记录失败
                 async with self.uow:
@@ -89,7 +99,7 @@ class SyncStockDailyHistoryHandler(CommandHandler[SyncStockDailyHistory, SyncHis
                         id=None,
                         source=DataSource.TUSHARE,
                         third_code=stock.third_code,
-                        start_date=start_date,
+                        start_date=start_date or stock.list_date,
                         end_date=today,
                         error_message=str(e),
                         failed_at=datetime.now(UTC),

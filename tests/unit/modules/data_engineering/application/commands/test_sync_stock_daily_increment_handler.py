@@ -1,16 +1,17 @@
-import pytest
 from datetime import date
 from unittest.mock import AsyncMock
 
+import pytest
+
+from app.modules.data_engineering.application.commands.retry_stock_daily_sync_failures_handler import (
+    RetryStockDailySyncFailuresHandler,
+)
 from app.modules.data_engineering.application.commands.sync_stock_daily_increment import (
-    SyncStockDailyIncrement,
     RetryStockDailySyncFailures,
+    SyncStockDailyIncrement,
 )
 from app.modules.data_engineering.application.commands.sync_stock_daily_increment_handler import (
     SyncStockDailyIncrementHandler,
-)
-from app.modules.data_engineering.application.commands.retry_stock_daily_sync_failures_handler import (
-    RetryStockDailySyncFailuresHandler,
 )
 from app.modules.data_engineering.domain.entities.stock_daily_sync_failure import (
     StockDailySyncFailure,
