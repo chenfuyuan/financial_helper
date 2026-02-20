@@ -1,6 +1,7 @@
 """ConceptStock SQLAlchemy 仓储实现。"""
 
 from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -55,21 +56,25 @@ class SqlAlchemyConceptStockRepository(ConceptStockRepository):
         ]
         dialect_name = self._session.get_bind().dialect.name
         if dialect_name == "postgresql":
-            insert_stmt = pg_insert(ConceptStockModel).values(values)
+            pg_insert_stmt: Any = pg_insert(ConceptStockModel).values(values)
         else:
-            insert_stmt = sqlite_insert(ConceptStockModel).values(values)
+            sqlite_insert_stmt: Any = sqlite_insert(ConceptStockModel).values(values)
 
-        stmt = insert_stmt.on_conflict_do_update(
+        upsert_stmt = (pg_insert_stmt if dialect_name == "postgresql" else sqlite_insert_stmt).on_conflict_do_update(
             index_elements=["concept_id", "source", "stock_third_code"],
             set_={
-                "stock_symbol": insert_stmt.excluded.stock_symbol,
-                "content_hash": insert_stmt.excluded.content_hash,
-                "added_at": insert_stmt.excluded.added_at,
+                "stock_symbol": (
+                    pg_insert_stmt if dialect_name == "postgresql" else sqlite_insert_stmt
+                ).excluded.stock_symbol,
+                "content_hash": (
+                    pg_insert_stmt if dialect_name == "postgresql" else sqlite_insert_stmt
+                ).excluded.content_hash,
+                "added_at": (pg_insert_stmt if dialect_name == "postgresql" else sqlite_insert_stmt).excluded.added_at,
                 "updated_at": now,
                 "version": ConceptStockModel.version + 1,
             },
         )
-        await self._session.execute(stmt)
+        await self._session.execute(upsert_stmt)
 
     async def delete_many(self, concept_stock_ids: list[int]) -> None:
         if not concept_stock_ids:

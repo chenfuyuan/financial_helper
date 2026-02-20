@@ -15,9 +15,7 @@ class StockBasicRepository(ABC):
         ...
 
     @abstractmethod
-    async def find_by_third_codes(
-        self, source: DataSource, third_codes: list[str]
-    ) -> list[StockBasic]:
+    async def find_by_third_codes(self, source: DataSource, third_codes: list[str]) -> list[StockBasic]:
         """根据 source 和 third_codes 列表查询股票。"""
         ...
 

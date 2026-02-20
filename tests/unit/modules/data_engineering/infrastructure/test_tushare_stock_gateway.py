@@ -30,9 +30,7 @@ class TestTuShareStockGatewayMapping:
                 "list_status": "L",
             }
         ]
-        with patch.object(
-            TuShareStockGateway, "_fetch_raw", new_callable=AsyncMock, return_value=mock_data
-        ):
+        with patch.object(TuShareStockGateway, "_fetch_raw", new_callable=AsyncMock, return_value=mock_data):
             gateway = TuShareStockGateway(token="test-token")
             result = await gateway.fetch_stock_basic()
         assert len(result) == 1
@@ -59,9 +57,7 @@ class TestTuShareStockGatewayMapping:
                 "list_status": "D",
             }
         ]
-        with patch.object(
-            TuShareStockGateway, "_fetch_raw", new_callable=AsyncMock, return_value=mock_data
-        ):
+        with patch.object(TuShareStockGateway, "_fetch_raw", new_callable=AsyncMock, return_value=mock_data):
             gateway = TuShareStockGateway(token="test-token")
             result = await gateway.fetch_stock_basic()
         assert result[0].status == StockStatus.DELISTED
@@ -80,9 +76,7 @@ class TestTuShareStockGatewayMapping:
                 "list_status": "P",
             }
         ]
-        with patch.object(
-            TuShareStockGateway, "_fetch_raw", new_callable=AsyncMock, return_value=mock_data
-        ):
+        with patch.object(TuShareStockGateway, "_fetch_raw", new_callable=AsyncMock, return_value=mock_data):
             gateway = TuShareStockGateway(token="test-token")
             result = await gateway.fetch_stock_basic()
         assert result[0].status == StockStatus.SUSPENDED
@@ -102,9 +96,7 @@ class TestTuShareStockGatewayMapping:
                 "list_status": "L",
             }
         ]
-        with patch.object(
-            TuShareStockGateway, "_fetch_raw", new_callable=AsyncMock, return_value=mock_data
-        ):
+        with patch.object(TuShareStockGateway, "_fetch_raw", new_callable=AsyncMock, return_value=mock_data):
             gateway = TuShareStockGateway(token="test-token")
             with pytest.raises(ExternalStockServiceError):
                 await gateway.fetch_stock_basic()
@@ -124,9 +116,7 @@ class TestTuShareStockGatewayMapping:
                 # list_date 缺失
             }
         ]
-        with patch.object(
-            TuShareStockGateway, "_fetch_raw", new_callable=AsyncMock, return_value=mock_data
-        ):
+        with patch.object(TuShareStockGateway, "_fetch_raw", new_callable=AsyncMock, return_value=mock_data):
             gateway = TuShareStockGateway(token="test-token")
             with pytest.raises(ExternalStockServiceError):
                 await gateway.fetch_stock_basic()

@@ -13,7 +13,7 @@ from app.modules.data_engineering.domain.repositories.stock_daily_repository imp
     StockDailyRepository,
 )
 from app.modules.data_engineering.domain.value_objects.data_source import DataSource
-from app.shared_kernel.infrastructure.sqlalchemy_repository import SqlAlchemyRepository
+from app.shared_kernel.infrastructure.sqlalchemy_entity_repository import SqlAlchemyEntityRepository
 
 from ..models.stock_daily_model import StockDailyModel
 from .mappers.stock_daily_persistence_mapper import StockDailyPersistenceMapper
@@ -21,9 +21,7 @@ from .mappers.stock_daily_persistence_mapper import StockDailyPersistenceMapper
 UPSERT_BATCH_SIZE = 500
 
 
-class SqlAlchemyStockDailyRepository(
-    SqlAlchemyRepository[StockDaily, int | None], StockDailyRepository
-):
+class SqlAlchemyStockDailyRepository(SqlAlchemyEntityRepository[StockDaily, int | None], StockDailyRepository):
     """使用 ON CONFLICT (source, third_code, trade_date) DO UPDATE 的批量 upsert。"""
 
     def __init__(
@@ -36,7 +34,7 @@ class SqlAlchemyStockDailyRepository(
 
     def _to_entity(self, model: Any) -> StockDaily:
         # 当前暂无查回实体的需求，如有需要再补充
-        pass
+        raise NotImplementedError("Entity conversion not implemented yet")
 
     def _to_model(self, entity: StockDaily) -> Any:
         return StockDailyModel(id=entity.id, **self._mapper.to_row(entity))
@@ -59,7 +57,7 @@ class SqlAlchemyStockDailyRepository(
             # 排除唯一键，其它业务字段全部更新
             set_dict = {
                 k: getattr(insert_stmt.excluded, k)
-                for k in values[0].keys()
+                for k in values[0]
                 if k not in ("source", "third_code", "trade_date")
             }
             set_dict["updated_at"] = now

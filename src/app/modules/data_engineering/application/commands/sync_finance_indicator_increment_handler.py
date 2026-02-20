@@ -24,9 +24,7 @@ from .sync_finance_indicator_commands import (
 logger = get_logger(__name__)
 
 
-class SyncFinanceIndicatorIncrementHandler(
-    CommandHandler[SyncFinanceIndicatorIncrement, SyncFinanceIndicatorResult]
-):
+class SyncFinanceIndicatorIncrementHandler(CommandHandler[SyncFinanceIndicatorIncrement, SyncFinanceIndicatorResult]):
     """增量同步：逐股查最新报告期 → start_date = latest + 1day，再拉取增量数据，逐股独立事务。"""
 
     def __init__(
@@ -43,9 +41,7 @@ class SyncFinanceIndicatorIncrementHandler(
 
     async def handle(self, command: SyncFinanceIndicatorIncrement) -> SyncFinanceIndicatorResult:
         if command.ts_codes:
-            stocks = await self._basic_repo.find_by_third_codes(
-                DataSource.TUSHARE, command.ts_codes
-            )
+            stocks = await self._basic_repo.find_by_third_codes(DataSource.TUSHARE, command.ts_codes)
         else:
             stocks = await self._basic_repo.find_all_listed(DataSource.TUSHARE)
 
@@ -61,14 +57,10 @@ class SyncFinanceIndicatorIncrementHandler(
 
         for stock in stocks:
             try:
-                latest = await self._fi_repo.get_latest_end_date(
-                    DataSource.TUSHARE, stock.third_code
-                )
+                latest = await self._fi_repo.get_latest_end_date(DataSource.TUSHARE, stock.third_code)
                 start_date = (latest + timedelta(days=1)) if latest else None
 
-                records = await self._gateway.fetch_by_stock(
-                    stock.third_code, start_date=start_date
-                )
+                records = await self._gateway.fetch_by_stock(stock.third_code, start_date=start_date)
                 async with self._uow:
                     if records:
                         await self._fi_repo.upsert_many(records)

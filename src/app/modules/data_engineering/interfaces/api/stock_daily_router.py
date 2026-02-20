@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from app.interfaces.response import ApiResponse
-from app.modules.data_engineering.application.commands.retry_stock_daily_sync_failures_handler import (
+from app.modules.data_engineering.application.commands import (
     RetryStockDailySyncFailuresHandler,
 )
 from app.modules.data_engineering.application.commands.sync_stock_daily_history import (
@@ -89,9 +89,7 @@ async def sync_stock_daily_increment(
 @router.post("/sync/retry-failures", response_model=ApiResponse[dict])
 async def retry_stock_daily_sync_failures(
     request: RetryFailuresRequest | None = None,
-    handler: RetryStockDailySyncFailuresHandler = Depends(
-        get_retry_stock_daily_sync_failures_handler
-    ),
+    handler: RetryStockDailySyncFailuresHandler = Depends(get_retry_stock_daily_sync_failures_handler),
 ) -> ApiResponse[dict]:
     start = time.perf_counter()
     max_retries = request.max_retries if request else 3

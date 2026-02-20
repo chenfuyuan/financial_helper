@@ -2,7 +2,6 @@ from collections.abc import Mapping
 from dataclasses import replace
 from datetime import UTC, datetime
 from time import perf_counter
-from typing import Any
 
 from app.modules.data_engineering.domain.entities.concept_stock import ConceptStock
 from app.modules.data_engineering.domain.entities.stock_basic import StockBasic
@@ -135,8 +134,9 @@ class SyncConceptsHandler(CommandHandler[SyncConcepts, SyncConceptsResult]):
         for stock_third_code, _stock_name in remote_tuples:
             stock_symbol = stock_third_code
             if stock_symbol in symbol_map:
-                matched_stock = symbol_map[stock_symbol]
-                remote_actual_third_codes.add(matched_stock.third_code)
+                stock = symbol_map[stock_symbol]
+                if stock is not None:
+                    remote_actual_third_codes.add(stock.third_code)
 
         to_upsert: list[ConceptStock] = []
         to_delete_ids: list[int] = []
@@ -148,7 +148,7 @@ class SyncConceptsHandler(CommandHandler[SyncConcepts, SyncConceptsResult]):
         for stock_third_code, _stock_name in remote_tuples:
             # AKShare返回的代码可能需要格式转换才能匹配symbol
             stock_symbol = stock_third_code
-            matched_stock = None
+            matched_stock: StockBasic | None = None
 
             # 首先尝试直接匹配symbol
             if stock_symbol in symbol_map:
@@ -162,7 +162,7 @@ class SyncConceptsHandler(CommandHandler[SyncConcepts, SyncConceptsResult]):
                         break
 
             # 如果仍然匹配不上，跳过这个股票
-            if matched_stock is None:
+            if not matched_stock:
                 continue
 
             actual_third_code = matched_stock.third_code

@@ -80,11 +80,7 @@ def _skip_class(cls: type) -> bool:
 
     if cls in (Entity, AggregateRoot, ValueObject, DomainEvent):
         return True
-    return (
-        issubclass(cls, Repository)
-        or issubclass(cls, DomainEvent)
-        or issubclass(cls, BaseException)
-    )
+    return issubclass(cls, Repository) or issubclass(cls, DomainEvent) or issubclass(cls, BaseException)
 
 
 def _collect_domain_classes():
@@ -127,7 +123,6 @@ def test_value_object_semantics_inherit_value_object() -> None:
             continue
         if not issubclass(cls, ValueObject):
             bad.append((cls, mod))
-    assert not bad, (
-        "Domain classes with value-object semantics (frozen, no id) must inherit ValueObject: "
-        + ", ".join(f"{c.__name__} in {m}" for c, m in bad)
+    assert not bad, "Domain classes with value-object semantics (frozen, no id) must inherit ValueObject: " + ", ".join(
+        f"{c.__name__} in {m}" for c, m in bad
     )

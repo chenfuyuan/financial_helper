@@ -53,9 +53,7 @@ class TestSqlAlchemyStockBasicRepository:
             await repo.upsert_many([_make_stock()])
             await session.commit()
         async with session_factory() as session:
-            result = await session.execute(
-                select(StockBasicModel).where(StockBasicModel.third_code == "000001.SZ")
-            )
+            result = await session.execute(select(StockBasicModel).where(StockBasicModel.third_code == "000001.SZ"))
             row = result.scalar_one()
         assert row.source == "TUSHARE"
         assert row.third_code == "000001.SZ"
@@ -73,9 +71,7 @@ class TestSqlAlchemyStockBasicRepository:
             await repo.upsert_many([_make_stock(name="平安银行已更名")])
             await session.commit()
         async with session_factory() as session:
-            result = await session.execute(
-                select(StockBasicModel).where(StockBasicModel.third_code == "000001.SZ")
-            )
+            result = await session.execute(select(StockBasicModel).where(StockBasicModel.third_code == "000001.SZ"))
             row = result.scalar_one()
         assert row.name == "平安银行已更名"
         assert row.version == 2
@@ -93,10 +89,8 @@ class TestSqlAlchemyStockBasicRepository:
             await repo.upsert_many([stock])
             await session.commit()
         async with session_factory() as session:
-            result = await session.execute(
-                select(StockBasicModel).where(StockBasicModel.third_code == "000001.SZ")
-            )
-            rows = result.scalars().all()
+            result = await session.execute(select(StockBasicModel).where(StockBasicModel.third_code == "000001.SZ"))
+            result.scalars().all()
 
     async def test_find_by_third_codes_and_all_listed(self, engine_and_session) -> None:
         _engine, session_factory = engine_and_session
@@ -112,9 +106,7 @@ class TestSqlAlchemyStockBasicRepository:
             await session.commit()
 
             # 测试 find_by_third_codes
-            found_codes = await repo.find_by_third_codes(
-                DataSource.TUSHARE, ["000001.SZ", "000003.SZ"]
-            )
+            found_codes = await repo.find_by_third_codes(DataSource.TUSHARE, ["000001.SZ", "000003.SZ"])
             assert len(found_codes) == 2
             codes = [s.third_code for s in found_codes]
             assert "000001.SZ" in codes

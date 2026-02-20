@@ -11,7 +11,7 @@ _DATE_FIELDS = {"ann_date", "end_date"}
 _STR_FIELDS = {"update_flag"}
 
 
-def _d(val) -> Decimal | None:
+def _d(val: str | int | float | None) -> Decimal | None:
     if val is None or val == "":
         return None
     try:
@@ -20,7 +20,7 @@ def _d(val) -> Decimal | None:
         return None
 
 
-def _dt(val) -> date | None:
+def _dt(val: str | None) -> date | None:
     return datetime.strptime(val, "%Y%m%d").date() if val else None
 
 

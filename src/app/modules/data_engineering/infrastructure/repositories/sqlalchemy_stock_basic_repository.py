@@ -23,9 +23,7 @@ _COLUMNS_PER_ROW = 9
 UPSERT_BATCH_SIZE = min(1000, _ASYNCPG_MAX_PARAMS // _COLUMNS_PER_ROW // 2)
 
 
-class SqlAlchemyStockBasicRepository(
-    SqlAlchemyRepository[StockBasic, int | None], StockBasicRepository
-):
+class SqlAlchemyStockBasicRepository(SqlAlchemyRepository[StockBasic, int | None], StockBasicRepository):
     """使用 ON CONFLICT (source, third_code) DO UPDATE 的批量 upsert。"""
 
     def __init__(
@@ -84,9 +82,7 @@ class SqlAlchemyStockBasicRepository(
             )
             await self._session.execute(stmt)
 
-    async def find_by_third_codes(
-        self, source: DataSource, third_codes: list[str]
-    ) -> list[StockBasic]:
+    async def find_by_third_codes(self, source: DataSource, third_codes: list[str]) -> list[StockBasic]:
         from sqlalchemy import select
 
         stmt = select(StockBasicModel).where(

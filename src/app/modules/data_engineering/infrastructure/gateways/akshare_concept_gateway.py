@@ -23,13 +23,9 @@ class AkShareConceptGateway(ConceptGateway):
         except ExternalConceptServiceError:
             raise
         except Exception as exc:
-            raise ExternalConceptServiceError(
-                f"Failed to fetch concepts from AKShare: {exc}"
-            ) from exc
+            raise ExternalConceptServiceError(f"Failed to fetch concepts from AKShare: {exc}") from exc
 
-    async def fetch_concept_stocks(
-        self, concept_third_code: str, concept_name: str
-    ) -> list[tuple[str, str]]:
+    async def fetch_concept_stocks(self, concept_third_code: str, concept_name: str) -> list[tuple[str, str]]:
         try:
             import akshare as ak  # type: ignore[import-untyped]
 

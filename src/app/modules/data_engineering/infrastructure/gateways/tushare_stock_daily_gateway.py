@@ -59,7 +59,7 @@ class TuShareStockDailyGateway(StockDailyGateway):
         # 每分钟 200 次调用
         self._rate_limiter = TokenBucket(capacity=200, tokens_per_minute=200)
 
-    async def _fetch_api(self, api_name: str, **kwargs) -> list[dict[str, Any]]:
+    async def _fetch_api(self, api_name: str, **kwargs: Any) -> list[dict[str, Any]]:
         """调用单个 API 并返回数据列表。"""
         await self._rate_limiter.acquire()
         import tushare as ts  # type: ignore[import-untyped]
@@ -89,9 +89,7 @@ class TuShareStockDailyGateway(StockDailyGateway):
             current_start = current_end + timedelta(days=1)
         return ranges
 
-    async def fetch_stock_daily(
-        self, ts_code: str, start_date: date, end_date: date
-    ) -> list[StockDaily]:
+    async def fetch_stock_daily(self, ts_code: str, start_date: date, end_date: date) -> list[StockDaily]:
         """分批次拉取股票日线数据，规避 TuShare 单次 6000 条上限。"""
         date_ranges = self._split_date_ranges(start_date, end_date)
 
@@ -109,9 +107,7 @@ class TuShareStockDailyGateway(StockDailyGateway):
                 end_date=end_str,
             )
 
-            daily_data = await self._fetch_api(
-                "daily", ts_code=ts_code, start_date=start_str, end_date=end_str
-            )
+            daily_data = await self._fetch_api("daily", ts_code=ts_code, start_date=start_str, end_date=end_str)
             if not daily_data:
                 # 本批次无交易数据，跳过后续两个接口的请求
                 logger.debug(
@@ -122,12 +118,8 @@ class TuShareStockDailyGateway(StockDailyGateway):
                 )
                 continue
 
-            adj_data = await self._fetch_api(
-                "adj_factor", ts_code=ts_code, start_date=start_str, end_date=end_str
-            )
-            basic_data = await self._fetch_api(
-                "daily_basic", ts_code=ts_code, start_date=start_str, end_date=end_str
-            )
+            adj_data = await self._fetch_api("adj_factor", ts_code=ts_code, start_date=start_str, end_date=end_str)
+            basic_data = await self._fetch_api("daily_basic", ts_code=ts_code, start_date=start_str, end_date=end_str)
 
             all_daily.extend(daily_data)
             all_adj.extend(adj_data)
@@ -163,31 +155,33 @@ class TuShareStockDailyGateway(StockDailyGateway):
         # 全量时 mapper 需能按不同 ts_code 拆分合并
         # 为了复用 mapper，这里我们先按 ts_code 分组，然后再合并
         result = []
-        codes = {r.get("ts_code") for r in daily_data if r.get("ts_code")}
+        codes = {str(r.get("ts_code")) for r in daily_data if r.get("ts_code") is not None}
 
         # 将三份数据建立 {ts_code: [rows]} 的索引
-        daily_by_code: dict[str, list[dict]] = {c: [] for c in codes}
-        adj_by_code: dict[str, list[dict]] = {c: [] for c in codes}
-        basic_by_code: dict[str, list[dict]] = {c: [] for c in codes}
+        daily_by_code: dict[str, list[dict[str, Any]]] = {c: [] for c in codes}
+        adj_by_code: dict[str, list[dict[str, Any]]] = {c: [] for c in codes}
+        basic_by_code: dict[str, list[dict[str, Any]]] = {c: [] for c in codes}
 
         for r in daily_data:
-            if c := str(r.get("ts_code")):
-                daily_by_code[c].append(r)
+            if (c := r.get("ts_code")) is not None:
+                daily_by_code[str(c)].append(r)
         for r in adj_data:
-            c = str(r.get("ts_code"))
-            if c and c in adj_by_code:
-                adj_by_code[c].append(r)
+            if (c := r.get("ts_code")) is not None:
+                c_str = str(c)
+                if c_str in adj_by_code:
+                    adj_by_code[c_str].append(r)
         for r in basic_data:
-            c = str(r.get("ts_code"))
-            if c and c in basic_by_code:
-                basic_by_code[c].append(r)
+            if (c := r.get("ts_code")) is not None:
+                c_str = str(c)
+                if c_str in basic_by_code:
+                    basic_by_code[c_str].append(r)
 
         for code in codes:
             d = daily_by_code.get(code, [])
             a = adj_by_code.get(code, [])
             b = basic_by_code.get(code, [])
             if d:
-                stocks = self._mapper.merge_to_stock_daily(code, d, a, b)
+                stocks = self._mapper.merge_to_stock_daily(str(code), d, a, b)
                 result.extend(stocks)
 
         logger.info(

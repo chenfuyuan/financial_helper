@@ -10,9 +10,7 @@ from app.modules.data_engineering.infrastructure.gateways.akshare_concept_gatewa
 
 
 @pytest.mark.asyncio
-@patch(
-    "app.modules.data_engineering.infrastructure.gateways.akshare_concept_gateway.asyncio.to_thread"
-)
+@patch("app.modules.data_engineering.infrastructure.gateways.akshare_concept_gateway.asyncio.to_thread")
 async def test_fetch_concepts_success(mock_to_thread) -> None:
     mock_to_thread.return_value = pd.DataFrame([{"板块名称": "人工智能", "板块代码": "BK0818"}])
     gateway = AkShareConceptGateway()
@@ -24,9 +22,7 @@ async def test_fetch_concepts_success(mock_to_thread) -> None:
 
 
 @pytest.mark.asyncio
-@patch(
-    "app.modules.data_engineering.infrastructure.gateways.akshare_concept_gateway.asyncio.to_thread"
-)
+@patch("app.modules.data_engineering.infrastructure.gateways.akshare_concept_gateway.asyncio.to_thread")
 async def test_fetch_concept_stocks_success(mock_to_thread) -> None:
     mock_to_thread.return_value = pd.DataFrame([{"代码": "000001", "名称": "平安银行"}])
     gateway = AkShareConceptGateway()
@@ -37,9 +33,7 @@ async def test_fetch_concept_stocks_success(mock_to_thread) -> None:
 
 
 @pytest.mark.asyncio
-@patch(
-    "app.modules.data_engineering.infrastructure.gateways.akshare_concept_gateway.asyncio.to_thread"
-)
+@patch("app.modules.data_engineering.infrastructure.gateways.akshare_concept_gateway.asyncio.to_thread")
 async def test_fetch_concepts_wraps_external_errors(mock_to_thread) -> None:
     mock_to_thread.side_effect = RuntimeError("boom")
     gateway = AkShareConceptGateway()
@@ -49,9 +43,7 @@ async def test_fetch_concepts_wraps_external_errors(mock_to_thread) -> None:
 
 
 @pytest.mark.asyncio
-@patch(
-    "app.modules.data_engineering.infrastructure.gateways.akshare_concept_gateway.asyncio.to_thread"
-)
+@patch("app.modules.data_engineering.infrastructure.gateways.akshare_concept_gateway.asyncio.to_thread")
 async def test_fetch_concept_stocks_wraps_external_errors(mock_to_thread) -> None:
     mock_to_thread.side_effect = RuntimeError("boom")
     gateway = AkShareConceptGateway()

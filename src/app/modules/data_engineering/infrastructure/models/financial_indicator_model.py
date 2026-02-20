@@ -129,9 +129,7 @@ class FinancialIndicatorModel(Base):
     """
 
     __tablename__ = "financial_indicator"
-    __table_args__ = (
-        UniqueConstraint("source", "third_code", "end_date", name="uq_financial_indicator_key"),
-    )
+    __table_args__ = (UniqueConstraint("source", "third_code", "end_date", name="uq_financial_indicator_key"),)
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     source: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
@@ -242,9 +240,7 @@ class FinancialIndicatorModel(Base):
     q_ocf_to_or: Mapped[float | None] = mapped_column(_N44, nullable=True)
     update_flag: Mapped[str | None] = mapped_column(String(4), nullable=True)
 
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
     )

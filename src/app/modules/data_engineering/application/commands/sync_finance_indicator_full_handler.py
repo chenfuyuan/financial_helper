@@ -22,9 +22,7 @@ from .sync_finance_indicator_commands import (
 logger = get_logger(__name__)
 
 
-class SyncFinanceIndicatorFullHandler(
-    CommandHandler[SyncFinanceIndicatorFull, SyncFinanceIndicatorResult]
-):
+class SyncFinanceIndicatorFullHandler(CommandHandler[SyncFinanceIndicatorFull, SyncFinanceIndicatorResult]):
     """全量同步：逐股拉取全部历史财务指标，每股独立事务，失败独立捕获继续。"""
 
     def __init__(
@@ -41,9 +39,7 @@ class SyncFinanceIndicatorFullHandler(
 
     async def handle(self, command: SyncFinanceIndicatorFull) -> SyncFinanceIndicatorResult:
         if command.ts_codes:
-            stocks = await self._basic_repo.find_by_third_codes(
-                DataSource.TUSHARE, command.ts_codes
-            )
+            stocks = await self._basic_repo.find_by_third_codes(DataSource.TUSHARE, command.ts_codes)
         else:
             stocks = await self._basic_repo.find_all(DataSource.TUSHARE)
 

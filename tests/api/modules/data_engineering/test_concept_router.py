@@ -22,9 +22,7 @@ def _make_concept() -> Concept:
 class TestConceptRouter:
     @pytest.mark.asyncio
     async def test_sync_and_list_concepts(self, api_client) -> None:
-        with patch(
-            "app.modules.data_engineering.interfaces.dependencies.AkShareConceptGateway"
-        ) as MockGateway:
+        with patch("app.modules.data_engineering.interfaces.dependencies.AkShareConceptGateway") as MockGateway:
             MockGateway.return_value.fetch_concepts = AsyncMock(return_value=[_make_concept()])
             MockGateway.return_value.fetch_concept_stocks = AsyncMock(return_value=[])
 

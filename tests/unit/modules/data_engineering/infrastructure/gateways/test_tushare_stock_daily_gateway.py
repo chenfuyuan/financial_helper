@@ -4,9 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from app.modules.data_engineering.infrastructure.gateways.mappers.tushare_stock_daily_mapper import (
-    TuShareStockDailyMapper,
-)
+from app.modules.data_engineering.infrastructure import TuShareStockDailyMapper
 from app.modules.data_engineering.infrastructure.gateways.tushare_stock_daily_gateway import (
     TuShareStockDailyGateway,
 )
@@ -23,9 +21,7 @@ def gateway(mapper):
 
 
 @pytest.mark.asyncio
-@patch(
-    "app.modules.data_engineering.infrastructure.gateways.tushare_stock_daily_gateway.asyncio.to_thread"
-)
+@patch("app.modules.data_engineering.infrastructure.gateways.tushare_stock_daily_gateway.asyncio.to_thread")
 async def test_fetch_stock_daily_calls_three_apis(mock_to_thread, gateway):
     # 模拟三个接口返回
     mock_to_thread.side_effect = [
@@ -71,9 +67,7 @@ def test_split_date_ranges_multiple_batches(gateway):
 
 
 @pytest.mark.asyncio
-@patch(
-    "app.modules.data_engineering.infrastructure.gateways.tushare_stock_daily_gateway.asyncio.to_thread"
-)
+@patch("app.modules.data_engineering.infrastructure.gateways.tushare_stock_daily_gateway.asyncio.to_thread")
 async def test_fetch_stock_daily_multi_batch(mock_to_thread, gateway):
     """跨年数据拉取时应分多批调用 API，每批调用 3 个接口。"""
 

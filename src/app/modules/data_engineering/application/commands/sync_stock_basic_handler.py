@@ -9,9 +9,7 @@ from .sync_stock_basic import SyncStockBasic
 
 
 class SyncStockBasicHandler(CommandHandler[SyncStockBasic, int]):
-    def __init__(
-        self, gateway: StockGateway, repository: StockBasicRepository, uow: UnitOfWork
-    ) -> None:
+    def __init__(self, gateway: StockGateway, repository: StockBasicRepository, uow: UnitOfWork) -> None:
         self._gateway = gateway
         self._repository = repository
         self._uow = uow

@@ -21,9 +21,7 @@ from app.modules.data_engineering.interfaces.dependencies import (
 @pytest.fixture
 def mock_history_handler(mocker):
     handler = mocker.AsyncMock()
-    handler.handle.return_value = SyncHistoryResult(
-        total=10, success_count=9, failure_count=1, synced_days=100
-    )
+    handler.handle.return_value = SyncHistoryResult(total=10, success_count=9, failure_count=1, synced_days=100)
     return handler
 
 
@@ -32,9 +30,7 @@ def mock_increment_handler(mocker):
     handler = mocker.AsyncMock()
     from datetime import date
 
-    handler.handle.return_value = SyncIncrementResult(
-        trade_date=date(2026, 2, 20), synced_count=5000
-    )
+    handler.handle.return_value = SyncIncrementResult(trade_date=date(2026, 2, 20), synced_count=5000)
     return handler
 
 
@@ -67,9 +63,7 @@ async def test_sync_history_api(mock_history_handler):
 
 @pytest.mark.asyncio
 async def test_sync_increment_api(mock_increment_handler):
-    app.dependency_overrides[get_sync_stock_daily_increment_handler] = (
-        lambda: mock_increment_handler
-    )
+    app.dependency_overrides[get_sync_stock_daily_increment_handler] = lambda: mock_increment_handler
     try:
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             response = await client.post(
@@ -87,9 +81,7 @@ async def test_sync_increment_api(mock_increment_handler):
 
 @pytest.mark.asyncio
 async def test_retry_failures_api(mock_retry_handler):
-    app.dependency_overrides[get_retry_stock_daily_sync_failures_handler] = (
-        lambda: mock_retry_handler
-    )
+    app.dependency_overrides[get_retry_stock_daily_sync_failures_handler] = lambda: mock_retry_handler
     try:
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             response = await client.post(

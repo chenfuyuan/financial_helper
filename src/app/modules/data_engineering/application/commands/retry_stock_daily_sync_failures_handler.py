@@ -64,9 +64,7 @@ class RetryStockDailySyncFailuresHandler(CommandHandler[RetryStockDailySyncFailu
                     end_date=str(failure.end_date),
                 )
 
-                records = await self.gateway.fetch_stock_daily(
-                    failure.third_code, failure.start_date, failure.end_date
-                )
+                records = await self.gateway.fetch_stock_daily(failure.third_code, failure.start_date, failure.end_date)
 
                 async with self.uow:
                     if records:

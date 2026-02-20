@@ -57,9 +57,7 @@ setup_middleware(app)
 
 _ExceptionHandler = Callable[..., Awaitable[Response]]
 app.add_exception_handler(DomainException, cast(_ExceptionHandler, domain_exception_handler))
-app.add_exception_handler(
-    RequestValidationError, cast(_ExceptionHandler, validation_exception_handler)
-)
+app.add_exception_handler(RequestValidationError, cast(_ExceptionHandler, validation_exception_handler))
 app.add_exception_handler(Exception, general_exception_handler)
 
 register_modules(app)

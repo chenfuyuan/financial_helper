@@ -10,9 +10,11 @@ from app.shared_kernel.infrastructure.database import Base
 
 
 class StockDailyModel(Base):
-    """表 stock_daily：日线行情，合并日线、复权因子、每日指标。UNIQUE(source, third_code, trade_date)。
+    """表 stock_daily：日线行情，合并日线、复权因子、每日指标。
+    UNIQUE(source, third_code, trade_date)。
+    """
 
-    Attributes:
+    """Attributes:
         id: 主键，自增。
         source: 数据来源（如 Tushare），存枚举值。
         third_code: 第三方数据源中的股票代码。
@@ -48,9 +50,7 @@ class StockDailyModel(Base):
     """
 
     __tablename__ = "stock_daily"
-    __table_args__ = (
-        UniqueConstraint("source", "third_code", "trade_date", name="uq_stock_daily_key"),
-    )
+    __table_args__ = (UniqueConstraint("source", "third_code", "trade_date", name="uq_stock_daily_key"),)
 
     # 字段顺序：id 最前，业务字段居中，公用字段最后
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -86,9 +86,7 @@ class StockDailyModel(Base):
     total_mv: Mapped[float | None] = mapped_column(Numeric(24, 4), nullable=True)
     circ_mv: Mapped[float | None] = mapped_column(Numeric(24, 4), nullable=True)
 
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
     )

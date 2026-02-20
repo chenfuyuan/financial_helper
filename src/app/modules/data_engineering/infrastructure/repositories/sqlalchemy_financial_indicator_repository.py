@@ -1,6 +1,7 @@
 """财务指标 SQLAlchemy 仓储实现。"""
 
 from datetime import date
+from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -51,18 +52,18 @@ class SqlAlchemyFinancialIndicatorRepository(FinancialIndicatorRepository):
         update_cols = {k: v for k, v in batch[0].items() if k not in CONFLICT_COLS}
 
         if dialect == "postgresql":
-            stmt = (
+            pg_stmt: Any = (
                 pg_insert(FinancialIndicatorModel)
                 .values(batch)
                 .on_conflict_do_update(index_elements=CONFLICT_COLS, set_=update_cols)
             )
         else:
-            stmt = (
+            sqlite_stmt: Any = (
                 sqlite_insert(FinancialIndicatorModel)
                 .values(batch)
                 .on_conflict_do_update(index_elements=CONFLICT_COLS, set_=update_cols)
             )
-        await self._session.execute(stmt)
+        await self._session.execute(pg_stmt if dialect == "postgresql" else sqlite_stmt)
 
     async def get_latest_end_date(self, source: DataSource, third_code: str) -> date | None:
         stmt = select(func.max(FinancialIndicatorModel.end_date)).where(

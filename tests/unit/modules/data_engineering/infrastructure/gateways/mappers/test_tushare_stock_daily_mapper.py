@@ -4,9 +4,7 @@ from decimal import Decimal
 import pytest
 
 from app.modules.data_engineering.domain.exceptions import ExternalStockServiceError
-from app.modules.data_engineering.infrastructure.gateways.mappers.tushare_stock_daily_mapper import (
-    TuShareStockDailyMapper,
-)
+from app.modules.data_engineering.infrastructure import TuShareStockDailyMapper
 
 
 def test_merge_daily_data():

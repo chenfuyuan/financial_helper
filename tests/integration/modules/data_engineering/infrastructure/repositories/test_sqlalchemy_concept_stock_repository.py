@@ -58,9 +58,7 @@ async def test_save_many_and_find_by_concept_id(engine_and_session) -> None:
     async with session_factory() as session:
         concept_id = await _seed_concept(session)
         repo = SqlAlchemyConceptStockRepository(session)
-        await repo.save_many(
-            [_make_concept_stock(concept_id, "000001"), _make_concept_stock(concept_id, "000002")]
-        )
+        await repo.save_many([_make_concept_stock(concept_id, "000001"), _make_concept_stock(concept_id, "000002")])
         await session.commit()
 
     async with session_factory() as session:
@@ -76,9 +74,7 @@ async def test_delete_many_removes_rows(engine_and_session) -> None:
     async with session_factory() as session:
         concept_id = await _seed_concept(session)
         repo = SqlAlchemyConceptStockRepository(session)
-        await repo.save_many(
-            [_make_concept_stock(concept_id, "000001"), _make_concept_stock(concept_id, "000002")]
-        )
+        await repo.save_many([_make_concept_stock(concept_id, "000001"), _make_concept_stock(concept_id, "000002")])
         await session.flush()
         rows = await repo.find_by_concept_id(concept_id)
         await repo.delete_many([row.id for row in rows if row.id is not None])
@@ -97,9 +93,7 @@ async def test_delete_by_concept_id_removes_all_rows(engine_and_session) -> None
     async with session_factory() as session:
         concept_id = await _seed_concept(session)
         repo = SqlAlchemyConceptStockRepository(session)
-        await repo.save_many(
-            [_make_concept_stock(concept_id, "000001"), _make_concept_stock(concept_id, "000002")]
-        )
+        await repo.save_many([_make_concept_stock(concept_id, "000001"), _make_concept_stock(concept_id, "000002")])
         await session.flush()
         await repo.delete_by_concept_id(concept_id)
         await session.commit()

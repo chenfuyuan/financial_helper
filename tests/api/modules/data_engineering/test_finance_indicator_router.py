@@ -35,9 +35,7 @@ def app_with_mocks():
 
     app.dependency_overrides[get_sync_finance_indicator_full_handler] = lambda: full_handler
     app.dependency_overrides[get_sync_finance_indicator_by_stock_handler] = lambda: by_stock_handler
-    app.dependency_overrides[get_sync_finance_indicator_increment_handler] = (
-        lambda: increment_handler
-    )
+    app.dependency_overrides[get_sync_finance_indicator_increment_handler] = lambda: increment_handler
     yield app
     app.dependency_overrides.pop(get_sync_finance_indicator_full_handler, None)
     app.dependency_overrides.pop(get_sync_finance_indicator_by_stock_handler, None)
@@ -46,9 +44,7 @@ def app_with_mocks():
 
 @pytest.mark.asyncio
 async def test_sync_full(app_with_mocks):
-    async with AsyncClient(
-        transport=ASGITransport(app=app_with_mocks), base_url="http://test"
-    ) as c:
+    async with AsyncClient(transport=ASGITransport(app=app_with_mocks), base_url="http://test") as c:
         r = await c.post("/api/v1/data-engineering/finance-indicator/sync/full")
     assert r.status_code == 200
     assert r.json()["success_count"] == 9
@@ -56,9 +52,7 @@ async def test_sync_full(app_with_mocks):
 
 @pytest.mark.asyncio
 async def test_sync_by_stock(app_with_mocks):
-    async with AsyncClient(
-        transport=ASGITransport(app=app_with_mocks), base_url="http://test"
-    ) as c:
+    async with AsyncClient(transport=ASGITransport(app=app_with_mocks), base_url="http://test") as c:
         r = await c.post("/api/v1/data-engineering/finance-indicator/sync/by-stock/000001.SZ")
     assert r.status_code == 200
     assert r.json()["synced_records"] == 40
@@ -66,9 +60,7 @@ async def test_sync_by_stock(app_with_mocks):
 
 @pytest.mark.asyncio
 async def test_sync_increment(app_with_mocks):
-    async with AsyncClient(
-        transport=ASGITransport(app=app_with_mocks), base_url="http://test"
-    ) as c:
+    async with AsyncClient(transport=ASGITransport(app=app_with_mocks), base_url="http://test") as c:
         r = await c.post("/api/v1/data-engineering/finance-indicator/sync/increment")
     assert r.status_code == 200
     assert r.json()["total"] == 10

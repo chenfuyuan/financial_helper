@@ -13,9 +13,7 @@ class ConceptStockModel(Base):
     """表 concept_stock。UNIQUE(concept_id, source, stock_third_code)。"""
 
     __tablename__ = "concept_stock"
-    __table_args__ = (
-        UniqueConstraint("concept_id", "source", "stock_third_code", name="uq_concept_stock_key"),
-    )
+    __table_args__ = (UniqueConstraint("concept_id", "source", "stock_third_code", name="uq_concept_stock_key"),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     concept_id: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -24,9 +22,7 @@ class ConceptStockModel(Base):
     stock_symbol: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
     content_hash: Mapped[str] = mapped_column(String(16), nullable=False)
     added_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
     )

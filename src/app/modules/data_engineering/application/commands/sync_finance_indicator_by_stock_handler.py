@@ -18,9 +18,7 @@ from .sync_finance_indicator_commands import (
 logger = get_logger(__name__)
 
 
-class SyncFinanceIndicatorByStockHandler(
-    CommandHandler[SyncFinanceIndicatorByStock, SyncFinanceIndicatorResult]
-):
+class SyncFinanceIndicatorByStockHandler(CommandHandler[SyncFinanceIndicatorByStock, SyncFinanceIndicatorResult]):
     """单股同步：拉取单只股票全部历史财务指标，单次事务。"""
 
     def __init__(

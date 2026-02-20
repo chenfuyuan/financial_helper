@@ -10,9 +10,7 @@ class StockDailyGateway(ABC):
     """从外部数据源拉取股票日线行情。内部封装 daily、adj_factor、daily_basic 的调用与组装。"""
 
     @abstractmethod
-    async def fetch_stock_daily(
-        self, ts_code: str, start_date: date, end_date: date
-    ) -> list[StockDaily]:
+    async def fetch_stock_daily(self, ts_code: str, start_date: date, end_date: date) -> list[StockDaily]:
         """获取单只股票指定日期范围的完整日线数据。"""
 
     @abstractmethod

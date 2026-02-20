@@ -12,8 +12,6 @@ class ConceptGateway(ABC):
         ...
 
     @abstractmethod
-    async def fetch_concept_stocks(
-        self, concept_third_code: str, concept_name: str
-    ) -> list[tuple[str, str]]:
+    async def fetch_concept_stocks(self, concept_third_code: str, concept_name: str) -> list[tuple[str, str]]:
         """获取指定概念的成分股列表。"""
         ...

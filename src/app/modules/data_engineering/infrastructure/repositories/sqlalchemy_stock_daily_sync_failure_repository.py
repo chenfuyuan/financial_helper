@@ -12,13 +12,13 @@ from app.modules.data_engineering.domain.repositories.stock_daily_sync_failure_r
     StockDailySyncFailureRepository,
 )
 from app.modules.data_engineering.domain.value_objects.data_source import DataSource
-from app.shared_kernel.infrastructure.sqlalchemy_repository import SqlAlchemyRepository
+from app.shared_kernel.infrastructure.sqlalchemy_entity_repository import SqlAlchemyEntityRepository
 
 from ..models.stock_daily_sync_failure_model import StockDailySyncFailureModel
 
 
 class SqlAlchemyStockDailySyncFailureRepository(
-    SqlAlchemyRepository[StockDailySyncFailure, int | None], StockDailySyncFailureRepository
+    SqlAlchemyEntityRepository[StockDailySyncFailure, int | None], StockDailySyncFailureRepository
 ):
     """失败记录仓储实现。"""
 

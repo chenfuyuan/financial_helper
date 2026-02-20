@@ -57,9 +57,7 @@ async def test_handle_new_concept_syncs_stocks() -> None:
     stock_repo = AsyncMock()
     stock_repo.find_by_concept_id = AsyncMock(return_value=[])
     stock_basic_repo = AsyncMock()
-    stock_basic_repo.find_all_listed = AsyncMock(
-        return_value=[_make_stock_basic("000001.SZ", "000001")]
-    )
+    stock_basic_repo.find_all_listed = AsyncMock(return_value=[_make_stock_basic("000001.SZ", "000001")])
     uow = AsyncMock()
 
     handler = SyncConceptsHandler(gateway, concept_repo, stock_repo, stock_basic_repo, uow)
@@ -150,9 +148,7 @@ async def test_handle_modified_concept_triggers_stock_incremental_sync() -> None
     stock_repo = AsyncMock()
     stock_repo.find_by_concept_id = AsyncMock(return_value=[local_stock])
     stock_basic_repo = AsyncMock()
-    stock_basic_repo.find_all = AsyncMock(
-        return_value=[_make_stock_basic("000002.SZ", "000002.SZ")]
-    )
+    stock_basic_repo.find_all = AsyncMock(return_value=[_make_stock_basic("000002.SZ", "000002.SZ")])
     uow = AsyncMock()
     handler = SyncConceptsHandler(gateway, concept_repo, stock_repo, stock_basic_repo, uow)
 

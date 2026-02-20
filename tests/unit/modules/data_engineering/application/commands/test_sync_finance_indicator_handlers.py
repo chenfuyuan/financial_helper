@@ -3,18 +3,12 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from app.modules.data_engineering.application.commands.sync_finance_indicator_by_stock_handler import (
-    SyncFinanceIndicatorByStockHandler,
-)
-from app.modules.data_engineering.application.commands.sync_finance_indicator_commands import (
+from app.modules.data_engineering.application.commands import (
     SyncFinanceIndicatorByStock,
+    SyncFinanceIndicatorByStockHandler,
     SyncFinanceIndicatorFull,
-    SyncFinanceIndicatorIncrement,
-)
-from app.modules.data_engineering.application.commands.sync_finance_indicator_full_handler import (
     SyncFinanceIndicatorFullHandler,
-)
-from app.modules.data_engineering.application.commands.sync_finance_indicator_increment_handler import (
+    SyncFinanceIndicatorIncrement,
     SyncFinanceIndicatorIncrementHandler,
 )
 from app.modules.data_engineering.domain.value_objects.data_source import DataSource

@@ -3,9 +3,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.modules.data_engineering.application.commands.retry_stock_daily_sync_failures_handler import (
-    RetryStockDailySyncFailuresHandler,
-)
+from app.modules.data_engineering.application.commands import RetryStockDailySyncFailuresHandler
 from app.modules.data_engineering.application.commands.sync_stock_daily_increment import (
     RetryStockDailySyncFailures,
     SyncStockDailyIncrement,
@@ -43,9 +41,7 @@ def mock_uow():
 @pytest.mark.asyncio
 async def test_increment_sync_success(mock_gateway, mock_daily_repo, mock_uow):
     mock_gateway.fetch_daily_all_by_date.return_value = ["mock_record"]
-    handler = SyncStockDailyIncrementHandler(
-        gateway=mock_gateway, daily_repo=mock_daily_repo, uow=mock_uow
-    )
+    handler = SyncStockDailyIncrementHandler(gateway=mock_gateway, daily_repo=mock_daily_repo, uow=mock_uow)
 
     cmd = SyncStockDailyIncrement(trade_date=date(2026, 2, 20))
     res = await handler.handle(cmd)
@@ -59,9 +55,7 @@ async def test_increment_sync_success(mock_gateway, mock_daily_repo, mock_uow):
 
 
 @pytest.mark.asyncio
-async def test_retry_failures_success_and_failure(
-    mock_gateway, mock_daily_repo, mock_failure_repo, mock_uow
-):
+async def test_retry_failures_success_and_failure(mock_gateway, mock_daily_repo, mock_failure_repo, mock_uow):
     failure1 = StockDailySyncFailure(
         id=1,
         source=DataSource.TUSHARE,

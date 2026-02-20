@@ -65,9 +65,7 @@ class SyncStockDailyHistoryHandler(CommandHandler[SyncStockDailyHistory, SyncHis
             start_date = None
             try:
                 async with self.uow:
-                    latest_date = await self.daily_repo.get_latest_trade_date(
-                        DataSource.TUSHARE, stock.third_code
-                    )
+                    latest_date = await self.daily_repo.get_latest_trade_date(DataSource.TUSHARE, stock.third_code)
 
                 start_date = latest_date + timedelta(days=1) if latest_date else stock.list_date
 

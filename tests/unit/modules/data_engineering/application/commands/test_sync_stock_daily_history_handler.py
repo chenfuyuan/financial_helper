@@ -86,7 +86,5 @@ async def test_history_sync_first_time(mock_date, handler, mock_basic_repo, mock
     assert res.success_count == 1
     assert res.failure_count == 0
 
-    mock_gateway.fetch_stock_daily.assert_called_once_with(
-        "000001.SZ", date(2026, 2, 18), date(2026, 2, 20)
-    )
+    mock_gateway.fetch_stock_daily.assert_called_once_with("000001.SZ", date(2026, 2, 18), date(2026, 2, 20))
     handler.uow.commit.assert_called_once()

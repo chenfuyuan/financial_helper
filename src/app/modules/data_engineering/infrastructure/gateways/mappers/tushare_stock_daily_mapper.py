@@ -73,9 +73,7 @@ class TuShareStockDailyMapper:
 
                 # 选填字段 (daily_basic)
                 turnover_rate = _parse_decimal(b_row.get("turnover_rate"), "turnover_rate", False)
-                turnover_rate_f = _parse_decimal(
-                    b_row.get("turnover_rate_f"), "turnover_rate_f", False
-                )
+                turnover_rate_f = _parse_decimal(b_row.get("turnover_rate_f"), "turnover_rate_f", False)
                 volume_ratio = _parse_decimal(b_row.get("volume_ratio"), "volume_ratio", False)
                 pe = _parse_decimal(b_row.get("pe"), "pe", False)
                 pe_ttm = _parse_decimal(b_row.get("pe_ttm"), "pe_ttm", False)
@@ -125,8 +123,6 @@ class TuShareStockDailyMapper:
             except ExternalStockServiceError:
                 raise
             except Exception as e:
-                raise ExternalStockServiceError(
-                    f"Error parsing row for {ts_code} at {t_date}: {e}"
-                ) from e
+                raise ExternalStockServiceError(f"Error parsing row for {ts_code} at {t_date}: {e}") from e
 
         return result

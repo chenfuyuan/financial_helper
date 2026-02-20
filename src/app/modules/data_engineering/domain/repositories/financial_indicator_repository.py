@@ -8,7 +8,9 @@ from ..value_objects.data_source import DataSource
 
 
 class FinancialIndicatorRepository(ABC):
-    """以 (source, third_code, end_date) 为唯一键批量 upsert；不 commit，由调用方 UnitOfWork 管理。"""
+    """以 (source, third_code, end_date) 为唯一键批量 upsert；
+    不 commit，由调用方 UnitOfWork 管理。
+    """
 
     @abstractmethod
     async def upsert_many(self, records: list[FinancialIndicator]) -> None:

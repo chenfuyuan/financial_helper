@@ -33,13 +33,9 @@ class AkShareConceptMapper:
             third_code = _get_str_value(row, ["板块代码", "代码"])
             name = _get_str_value(row, ["板块名称", "名称"])
             if not third_code:
-                raise ExternalConceptServiceError(
-                    "AKShare concept row missing required field: 板块代码"
-                )
+                raise ExternalConceptServiceError("AKShare concept row missing required field: 板块代码")
             if not name:
-                raise ExternalConceptServiceError(
-                    "AKShare concept row missing required field: 板块名称"
-                )
+                raise ExternalConceptServiceError("AKShare concept row missing required field: 板块名称")
             concepts.append(
                 Concept(
                     id=None,
