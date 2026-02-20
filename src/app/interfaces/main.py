@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     configure_logging(log_level=settings.LOG_LEVEL, app_env=settings.APP_ENV)
     logger.info("Application starting up", app_name=settings.APP_NAME, env=settings.APP_ENV)
 
-    db = Database(url=settings.DATABASE_URL, echo=settings.APP_DEBUG)
+    db = Database(url=settings.DATABASE_URL, echo=False)
     app.state.db = db
 
     mediator = Mediator()

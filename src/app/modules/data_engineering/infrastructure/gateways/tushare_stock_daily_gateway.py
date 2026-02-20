@@ -1,7 +1,8 @@
 """TuShare 股票日线数据网关：拉取数据并委托 Mapper 解析。带 Token Bucket 限流。"""
 
 import asyncio
-from datetime import date
+import logging
+from datetime import date, timedelta
 from typing import Any
 
 from app.modules.data_engineering.domain.entities.stock_daily import StockDaily
@@ -9,6 +10,8 @@ from app.modules.data_engineering.domain.exceptions import ExternalStockServiceE
 from app.modules.data_engineering.domain.gateways.stock_daily_gateway import StockDailyGateway
 
 from .mappers.tushare_stock_daily_mapper import TuShareStockDailyMapper
+
+logger = logging.getLogger(__name__)
 
 
 class TokenBucket:
@@ -74,26 +77,62 @@ class TuShareStockDailyGateway(StockDailyGateway):
         except Exception as e:
             raise ExternalStockServiceError(f"TuShare API {api_name} error: {e}") from e
 
+    def _split_date_ranges(
+        self, start_date: date, end_date: date, days_per_batch: int = 5000
+    ) -> list[tuple[date, date]]:
+        """将日期范围按 days_per_batch 分割为多个子区间，防止超过 TuShare 6000 条响应上限。"""
+        ranges: list[tuple[date, date]] = []
+        current_start = start_date
+        while current_start <= end_date:
+            current_end = min(current_start + timedelta(days=days_per_batch - 1), end_date)
+            ranges.append((current_start, current_end))
+            current_start = current_end + timedelta(days=1)
+        return ranges
+
     async def fetch_stock_daily(
         self, ts_code: str, start_date: date, end_date: date
     ) -> list[StockDaily]:
-        start_str = start_date.strftime("%Y%m%d")
-        end_str = end_date.strftime("%Y%m%d")
+        """分批次拉取股票日线数据，规避 TuShare 单次 6000 条上限。"""
+        date_ranges = self._split_date_ranges(start_date, end_date)
 
-        daily_data = await self._fetch_api(
-            "daily", ts_code=ts_code, start_date=start_str, end_date=end_str
-        )
-        if not daily_data:
+        all_daily: list[dict[str, Any]] = []
+        all_adj: list[dict[str, Any]] = []
+        all_basic: list[dict[str, Any]] = []
+
+        for batch_start, batch_end in date_ranges:
+            start_str = batch_start.strftime("%Y%m%d")
+            end_str = batch_end.strftime("%Y%m%d")
+            logger.debug(
+                f"[{ts_code}] 拉取批次 {start_str} -> {end_str}"
+            )
+
+            daily_data = await self._fetch_api(
+                "daily", ts_code=ts_code, start_date=start_str, end_date=end_str
+            )
+            if not daily_data:
+                # 本批次无交易数据，跳过后续两个接口的请求
+                logger.debug(f"[{ts_code}] 批次 {start_str} -> {end_str} 无数据，跳过")
+                continue
+
+            adj_data = await self._fetch_api(
+                "adj_factor", ts_code=ts_code, start_date=start_str, end_date=end_str
+            )
+            basic_data = await self._fetch_api(
+                "daily_basic", ts_code=ts_code, start_date=start_str, end_date=end_str
+            )
+
+            all_daily.extend(daily_data)
+            all_adj.extend(adj_data)
+            all_basic.extend(basic_data)
+
+        if not all_daily:
             return []
 
-        adj_data = await self._fetch_api(
-            "adj_factor", ts_code=ts_code, start_date=start_str, end_date=end_str
+        logger.info(
+            f"[{ts_code}] 共拉取 {len(all_daily)} 条日线、"
+            f"{len(all_adj)} 条复权、{len(all_basic)} 条基本面数据"
         )
-        basic_data = await self._fetch_api(
-            "daily_basic", ts_code=ts_code, start_date=start_str, end_date=end_str
-        )
-
-        return self._mapper.merge_to_stock_daily(ts_code, daily_data, adj_data, basic_data)
+        return self._mapper.merge_to_stock_daily(ts_code, all_daily, all_adj, all_basic)
 
     async def fetch_daily_all_by_date(self, trade_date: date) -> list[StockDaily]:
         date_str = trade_date.strftime("%Y%m%d")

@@ -10,7 +10,23 @@ from app.shared_kernel.infrastructure.database import Base
 
 
 class StockBasicModel(Base):
-    """表 stock_basic：含基础字段与业务字段，UNIQUE(source, third_code)。"""
+    """表 stock_basic：股票基础信息。UNIQUE(source, third_code)。
+
+    Attributes:
+        id: 主键，自增。
+        source: 数据来源（如 Tushare），存枚举值。
+        third_code: 第三方数据源中的股票代码。
+        symbol: 交易所/展示用代码（如 000001.SZ）。
+        name: 股票名称。
+        market: 市场类型（如 主板、创业板）。
+        area: 所属地区。
+        industry: 所属行业。
+        list_date: 上市日期。
+        status: 上市状态（如 上市、退市），存枚举值。
+        created_at: 创建时间（UTC）。
+        updated_at: 最后更新时间（UTC）。
+        version: 乐观锁版本号。
+    """
 
     __tablename__ = "stock_basic"
     __table_args__ = (

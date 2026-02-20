@@ -20,6 +20,7 @@ interfaces → application → domain ← infrastructure
 - 聚合根: 继承 `AggregateRoot[ID]` + 用 `add_event()` 发布领域事件
 - 仓储: 只定义抽象接口，不含实现
 - 异常: 继承 `DomainException`
+- **实体/聚合根文档**：类 docstring 须含 **Attributes** 段，逐字段说明含义（见 `guide/development-conventions.md` 注释规范）
 
 ## Application 层
 
@@ -30,7 +31,7 @@ interfaces → application → domain ← infrastructure
 
 ## Infrastructure 层
 
-- SqlAlchemy Model: 继承 `Base`，放在 `models/` 目录；表字段顺序：id 最前，业务字段居中，created_at/updated_at/version 最后
+- SqlAlchemy Model: 继承 `Base`，放在 `models/` 目录；表字段顺序：id 最前，业务字段居中，created_at/updated_at/version 最后；类 docstring 须含 **Attributes** 段逐字段说明含义（见 `guide/development-conventions.md` 注释规范）
 - Alembic 迁移：`create_table` / `add_column` 的列顺序与模型一致（同上）
 - Repository 实现: 继承 `SqlAlchemyRepository` + 具体模块仓储接口
 - 必须实现 `_to_entity()` 和 `_to_model()` 转换方法；`_to_entity()` 中须将 DB 字符串转回领域枚举

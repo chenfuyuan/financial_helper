@@ -10,7 +10,22 @@ from app.shared_kernel.infrastructure.database import Base
 
 
 class StockDailySyncFailureModel(Base):
-    """表 stock_daily_sync_failure：记录同步失败的日线数据批次，用于重试。"""
+    """表 stock_daily_sync_failure：日线同步失败记录，用于重试与排查。
+
+    Attributes:
+        id: 主键，自增。
+        source: 数据来源（如 Tushare），存枚举值。
+        third_code: 第三方数据源中的股票代码。
+        start_date: 本次同步请求的起始日期（含）。
+        end_date: 本次同步请求的结束日期（含）。
+        error_message: 失败原因或异常信息。
+        failed_at: 失败发生时间（含时区）。
+        retry_count: 已重试次数。
+        resolved: 是否已解决（如重试成功或人工标记）。
+        created_at: 创建时间（UTC）。
+        updated_at: 最后更新时间（UTC）。
+        version: 乐观锁版本号。
+    """
 
     __tablename__ = "stock_daily_sync_failure"
 
