@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import DateTime, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -18,10 +18,7 @@ class ConceptStockModel(Base):
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    concept_id: Mapped[int] = mapped_column(
-        ForeignKey("concept.id", ondelete="CASCADE"),
-        nullable=False,
-    )
+    concept_id: Mapped[int] = mapped_column(Integer, nullable=False)
     source: Mapped[str] = mapped_column(String(32), nullable=False)
     stock_third_code: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     stock_symbol: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)

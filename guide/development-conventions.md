@@ -87,6 +87,7 @@ src/app/
 - **ORM 模型字段**：id 最前，业务字段居中，审计字段（created_at/updated_at/version）最后。
 - **领域实体字段**：仅包含业务属性，不包含审计字段（created_at/updated_at/version），这些由 ORM 模型和数据库维护。
 - **字段顺序**：模型属性顺序与 Alembic `create_table` / `add_column` 列顺序一致。
+- **禁止外键约束**：数据库表设计严格禁止使用外键（FOREIGN KEY）约束。数据完整性和关联关系在应用层通过业务逻辑和领域服务维护，避免数据库层面的强耦合，提升系统扩展性和分库分表能力。
 
 ## 架构守护
 

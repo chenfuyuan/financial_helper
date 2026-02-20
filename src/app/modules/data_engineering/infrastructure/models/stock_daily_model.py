@@ -55,7 +55,7 @@ class StockDailyModel(Base):
     # 字段顺序：id 最前，业务字段居中，公用字段最后
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     source: Mapped[str] = mapped_column(String(32), nullable=False)
-    third_code: Mapped[str] = mapped_column(String(32), nullable=False)
+    third_code: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     trade_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
 
     open: Mapped[float] = mapped_column(Numeric(20, 4), nullable=False)
