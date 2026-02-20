@@ -7,3 +7,4 @@ class DataSource(StrEnum):
     """数据来源。"""
 
     TUSHARE = "TUSHARE"
+    AKSHARE = "AKSHARE"
