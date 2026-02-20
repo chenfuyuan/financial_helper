@@ -45,7 +45,7 @@ class SqlAlchemyFinancialIndicatorRepository(FinancialIndicatorRepository):
             deduped.append(r)
 
         batch = [
-            self._mapper.to_persistence_dict(r) for r in deduped
+            self._mapper.to_dict(r) for r in deduped
         ]
 
         # 按 PostgreSQL/SQLite 分批处理
