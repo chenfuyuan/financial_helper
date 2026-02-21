@@ -7,8 +7,8 @@ from .gateways.tushare_stock_daily_gateway import TuShareStockDailyGateway
 from .gateways.tushare_stock_gateway import TuShareStockGateway
 from .repositories.sqlalchemy_concept_repository import SqlAlchemyConceptRepository
 from .repositories.sqlalchemy_concept_stock_repository import SqlAlchemyConceptStockRepository
-from .repositories.sqlalchemy_financial_indicator_repository import (
-    SqlAlchemyFinancialIndicatorRepository,
+from .repositories.sqlalchemy_stock_financial_repository import (
+    SqlAlchemyStockFinancialRepository,
 )
 from .repositories.sqlalchemy_stock_basic_repository import SqlAlchemyStockBasicRepository
 from .repositories.sqlalchemy_stock_daily_repository import SqlAlchemyStockDailyRepository
@@ -24,7 +24,7 @@ __all__ = [
     "TuShareStockDailyMapper",
     "SqlAlchemyConceptRepository",
     "SqlAlchemyConceptStockRepository",
-    "SqlAlchemyFinancialIndicatorRepository",
+    "SqlAlchemyStockFinancialRepository",
     "SqlAlchemyStockBasicRepository",
     "SqlAlchemyStockDailyRepository",
     "SqlAlchemyStockDailySyncFailureRepository",

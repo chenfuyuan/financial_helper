@@ -11,6 +11,7 @@ class StockDailyPersistenceMapper:
         return {
             "source": entity.source.value,
             "third_code": entity.third_code,
+            "symbol": entity.symbol,
             "trade_date": entity.trade_date,
             "open": entity.open,
             "high": entity.high,

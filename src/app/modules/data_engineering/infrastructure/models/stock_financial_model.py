@@ -1,4 +1,4 @@
-"""财务指标 SQLAlchemy 模型。"""
+"""股票财务指标 SQLAlchemy 模型。"""
 
 from datetime import date, datetime
 
@@ -12,14 +12,15 @@ _N44 = Numeric(24, 4)  # 每股/比率类
 _N46 = Numeric(24, 6)  # 大金额类
 
 
-class FinancialIndicatorModel(Base):
-    """表 financial_indicator：A 股财务指标，来自 Tushare fina_indicator 接口。
+class StockFinancialModel(Base):
+    """表 stock_financial：A 股财务指标，来自 Tushare fina_indicator 接口。
     UNIQUE(source, third_code, end_date)。
 
     Attributes:
         id: 主键，自增。
         source: 数据来源（如 Tushare），存枚举值。
         third_code: 第三方数据源中的股票代码。
+        symbol: 股票标准代码标识符。
         ann_date: 公告日期。
         end_date: 报告期截止日（唯一键组成部分）。
         eps: 基本每股收益。
@@ -128,12 +129,13 @@ class FinancialIndicatorModel(Base):
         updated_at: 最后更新时间。
     """
 
-    __tablename__ = "financial_indicator"
-    __table_args__ = (UniqueConstraint("source", "third_code", "end_date", name="uq_financial_indicator_key"),)
+    __tablename__ = "stock_financial"
+    __table_args__ = (UniqueConstraint("source", "third_code", "end_date", name="uq_stock_financial_key"),)
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     source: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
     third_code: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    symbol: Mapped[str | None] = mapped_column(String(32), nullable=True)
     ann_date: Mapped[date | None] = mapped_column(Date, nullable=True, index=True)
     end_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
 

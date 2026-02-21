@@ -18,6 +18,7 @@ class StockDailyModel(Base):
         id: 主键，自增。
         source: 数据来源（如 Tushare），存枚举值。
         third_code: 第三方数据源中的股票代码。
+        symbol: 股票标准代码标识符。
         trade_date: 交易日期。
         open: 开盘价。
         high: 最高价。
@@ -56,6 +57,7 @@ class StockDailyModel(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     source: Mapped[str] = mapped_column(String(32), nullable=False)
     third_code: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    symbol: Mapped[str | None] = mapped_column(String(32), nullable=True)
     trade_date: Mapped[date] = mapped_column(Date, nullable=False, index=True)
 
     open: Mapped[float] = mapped_column(Numeric(20, 4), nullable=False)

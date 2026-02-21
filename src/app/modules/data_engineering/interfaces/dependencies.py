@@ -94,9 +94,11 @@ def get_sync_stock_daily_increment_handler(
 ) -> SyncStockDailyIncrementHandler:
     gateway = TuShareStockDailyGateway(token=settings.TUSHARE_TOKEN)
     daily_repo = SqlAlchemyStockDailyRepository(uow.session)
+    basic_repo = SqlAlchemyStockBasicRepository(uow.session)
     return SyncStockDailyIncrementHandler(
         gateway=gateway,
         daily_repo=daily_repo,
+        basic_repo=basic_repo,
         uow=uow,
     )
 
@@ -122,14 +124,14 @@ def get_sync_finance_indicator_full_handler(
 
     from app.modules.data_engineering.application.commands import SyncFinanceIndicatorFullHandler
     from app.modules.data_engineering.infrastructure import (
-        SqlAlchemyFinancialIndicatorRepository,
+        SqlAlchemyStockFinancialRepository,
         TuShareFinanceIndicatorGateway,
     )
 
     pro = ts.pro_api(settings.TUSHARE_TOKEN)
     return SyncFinanceIndicatorFullHandler(
         basic_repo=SqlAlchemyStockBasicRepository(uow.session),
-        fi_repo=SqlAlchemyFinancialIndicatorRepository(uow.session),
+        fi_repo=SqlAlchemyStockFinancialRepository(uow.session),
         gateway=TuShareFinanceIndicatorGateway(pro=pro),
         uow=uow,
     )
@@ -142,13 +144,15 @@ def get_sync_finance_indicator_by_stock_handler(
 
     from app.modules.data_engineering.application.commands import SyncFinanceIndicatorByStockHandler
     from app.modules.data_engineering.infrastructure import (
-        SqlAlchemyFinancialIndicatorRepository,
+        SqlAlchemyStockFinancialRepository,
+        SqlAlchemyStockBasicRepository,
         TuShareFinanceIndicatorGateway,
     )
 
     pro = ts.pro_api(settings.TUSHARE_TOKEN)
     return SyncFinanceIndicatorByStockHandler(
-        fi_repo=SqlAlchemyFinancialIndicatorRepository(uow.session),
+        basic_repo=SqlAlchemyStockBasicRepository(uow.session),
+        fi_repo=SqlAlchemyStockFinancialRepository(uow.session),
         gateway=TuShareFinanceIndicatorGateway(pro=pro),
         uow=uow,
     )
@@ -163,14 +167,14 @@ def get_sync_finance_indicator_increment_handler(
         SyncFinanceIndicatorIncrementHandler,
     )
     from app.modules.data_engineering.infrastructure import (
-        SqlAlchemyFinancialIndicatorRepository,
+        SqlAlchemyStockFinancialRepository,
         TuShareFinanceIndicatorGateway,
     )
 
     pro = ts.pro_api(settings.TUSHARE_TOKEN)
     return SyncFinanceIndicatorIncrementHandler(
         basic_repo=SqlAlchemyStockBasicRepository(uow.session),
-        fi_repo=SqlAlchemyFinancialIndicatorRepository(uow.session),
+        fi_repo=SqlAlchemyStockFinancialRepository(uow.session),
         gateway=TuShareFinanceIndicatorGateway(pro=pro),
         uow=uow,
     )

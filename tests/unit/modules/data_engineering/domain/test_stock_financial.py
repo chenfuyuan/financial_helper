@@ -2,22 +2,23 @@ from dataclasses import fields
 from datetime import date
 from decimal import Decimal
 
-from app.modules.data_engineering.domain.entities.financial_indicator import FinancialIndicator
+from app.modules.data_engineering.domain.entities.stock_financial import StockFinancial
 from app.modules.data_engineering.domain.value_objects.data_source import DataSource
 
-_FIXED = {"id", "source", "third_code", "end_date"}
+_FIXED = {"id", "source", "third_code", "symbol", "end_date"}
 
 
-def _make(**kwargs) -> FinancialIndicator:
+def _make(**kwargs) -> StockFinancial:
     base = {
         "id": None,
         "source": DataSource.TUSHARE,
         "third_code": "000001.SZ",
+        "symbol": None,
         "end_date": date(2023, 12, 31),
-        **{f.name: None for f in fields(FinancialIndicator) if f.name not in _FIXED},
+        **{f.name: None for f in fields(StockFinancial) if f.name not in _FIXED},
     }
     base.update(kwargs)
-    return FinancialIndicator(**base)
+    return StockFinancial(**base)
 
 
 def test_identity_by_id():

@@ -4,7 +4,7 @@ from dataclasses import fields as dc_fields
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 
-from app.modules.data_engineering.domain.entities.financial_indicator import FinancialIndicator
+from app.modules.data_engineering.domain.entities.stock_financial import StockFinancial
 from app.modules.data_engineering.domain.value_objects.data_source import DataSource
 
 _DATE_FIELDS = {"ann_date", "end_date"}
@@ -25,12 +25,12 @@ def _dt(val: str | None) -> date | None:
 
 
 class TuShareFinanceIndicatorMapper:
-    """将 Tushare fina_indicator 接口返回的行字典转换为 FinancialIndicator 实体。"""
+    """将 Tushare fina_indicator 接口返回的行字典转换为 StockFinancial 实体。"""
 
     @staticmethod
-    def to_entity(row: dict) -> FinancialIndicator:
-        kwargs: dict = {"id": None, "source": DataSource.TUSHARE, "third_code": row["ts_code"]}
-        for f in dc_fields(FinancialIndicator):
+    def to_entity(row: dict) -> StockFinancial:
+        kwargs: dict = {"id": None, "source": DataSource.TUSHARE, "third_code": row["ts_code"], "symbol": None}
+        for f in dc_fields(StockFinancial):
             if f.name in {"id", "source", "third_code"}:
                 continue
             v = row.get(f.name)
@@ -40,4 +40,4 @@ class TuShareFinanceIndicatorMapper:
                 kwargs[f.name] = v
             else:
                 kwargs[f.name] = _d(v)
-        return FinancialIndicator(**kwargs)
+        return StockFinancial(**kwargs)

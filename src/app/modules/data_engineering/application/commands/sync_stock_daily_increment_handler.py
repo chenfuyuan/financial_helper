@@ -6,6 +6,10 @@ from app.modules.data_engineering.domain.gateways.stock_daily_gateway import Sto
 from app.modules.data_engineering.domain.repositories.stock_daily_repository import (
     StockDailyRepository,
 )
+from app.modules.data_engineering.domain.repositories.stock_basic_repository import (
+    StockBasicRepository,
+)
+from app.modules.data_engineering.domain.value_objects.data_source import DataSource
 from app.shared_kernel.application.command_handler import CommandHandler
 from app.shared_kernel.domain.unit_of_work import UnitOfWork
 from app.shared_kernel.infrastructure.logging import get_logger
@@ -22,10 +26,12 @@ class SyncStockDailyIncrementHandler(CommandHandler[SyncStockDailyIncrement, Syn
         self,
         gateway: StockDailyGateway,
         daily_repo: StockDailyRepository,
+        basic_repo: StockBasicRepository,
         uow: UnitOfWork,
     ) -> None:
         self.gateway = gateway
         self.daily_repo = daily_repo
+        self.basic_repo = basic_repo
         self.uow = uow
 
     async def handle(self, command: SyncStockDailyIncrement) -> SyncIncrementResult:
@@ -36,8 +42,21 @@ class SyncStockDailyIncrementHandler(CommandHandler[SyncStockDailyIncrement, Syn
             trade_date=str(trade_date),
         )
 
+        # 获取所有股票的symbol映射
+        stocks = await self.basic_repo.find_all(DataSource.TUSHARE)
+        symbol_map = {stock.third_code: stock.symbol for stock in stocks}
+        logger.info(
+            "获取股票symbol映射完成",
+            stock_count=len(symbol_map),
+        )
+
         async with self.uow:
             records = await self.gateway.fetch_daily_all_by_date(trade_date)
+            # 填充symbol字段
+            for record in records:
+                if record.third_code in symbol_map:
+                    record.symbol = symbol_map[record.third_code]
+            
             logger.info(
                 "拉取日线全市场数据完成",
                 trade_date=str(trade_date),

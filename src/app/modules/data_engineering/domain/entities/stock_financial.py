@@ -1,4 +1,4 @@
-"""财务指标领域实体。"""
+"""股票财务指标领域实体。"""
 
 from dataclasses import dataclass
 from datetime import date
@@ -10,13 +10,14 @@ from ..value_objects.data_source import DataSource
 
 
 @dataclass(eq=False)
-class FinancialIndicator(Entity[int | None]):
-    """财务指标实体。逻辑唯一键：(source, third_code, end_date)。仅含业务属性。
+class StockFinancial(Entity[int | None]):
+    """股票财务指标实体。逻辑唯一键：(source, third_code, end_date)。仅含业务属性。
 
     Attributes:
         id: 主键；新建未持久化时为 None。
         source: 数据来源（如 Tushare）。
         third_code: 第三方数据源中的股票代码。
+        symbol: 股票标准代码标识符。
         ann_date: 公告日期。
         end_date: 报告期截止日（唯一键组成部分）。
         eps: 基本每股收益。
@@ -126,6 +127,7 @@ class FinancialIndicator(Entity[int | None]):
     id: int | None
     source: DataSource
     third_code: str
+    symbol: str | None
     ann_date: date | None
     end_date: date
     eps: Decimal | None
@@ -232,7 +234,7 @@ class FinancialIndicator(Entity[int | None]):
     update_flag: str | None
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, type(self)):
+        if not isinstance(other, StockFinancial):
             return False
         if self.id is None or other.id is None:
             return self is other

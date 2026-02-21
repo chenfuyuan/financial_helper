@@ -5,8 +5,8 @@ from datetime import timedelta
 from app.modules.data_engineering.domain.gateways.financial_indicator_gateway import (
     FinancialIndicatorGateway,
 )
-from app.modules.data_engineering.domain.repositories.financial_indicator_repository import (
-    FinancialIndicatorRepository,
+from app.modules.data_engineering.domain.repositories.stock_financial_repository import (
+    StockFinancialRepository,
 )
 from app.modules.data_engineering.domain.repositories.stock_basic_repository import (
     StockBasicRepository,
@@ -30,7 +30,7 @@ class SyncFinanceIndicatorIncrementHandler(CommandHandler[SyncFinanceIndicatorIn
     def __init__(
         self,
         basic_repo: StockBasicRepository,
-        fi_repo: FinancialIndicatorRepository,
+        fi_repo: StockFinancialRepository,
         gateway: FinancialIndicatorGateway,
         uow: UnitOfWork,
     ) -> None:
@@ -61,6 +61,9 @@ class SyncFinanceIndicatorIncrementHandler(CommandHandler[SyncFinanceIndicatorIn
                 start_date = (latest + timedelta(days=1)) if latest else None
 
                 records = await self._gateway.fetch_by_stock(stock.third_code, start_date=start_date)
+                # 填充symbol字段
+                for record in records:
+                    record.symbol = stock.symbol
                 async with self._uow:
                     if records:
                         await self._fi_repo.upsert_many(records)

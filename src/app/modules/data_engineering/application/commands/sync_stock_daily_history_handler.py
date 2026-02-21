@@ -85,6 +85,9 @@ class SyncStockDailyHistoryHandler(CommandHandler[SyncStockDailyHistory, SyncHis
                 )
 
                 records = await self.gateway.fetch_stock_daily(stock.third_code, start_date, today)
+                # 填充symbol字段
+                for record in records:
+                    record.symbol = stock.symbol
 
                 async with self.uow:
                     if records:

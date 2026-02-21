@@ -92,6 +92,7 @@ class TuShareStockDailyMapper:
                     id=None,
                     source=DataSource.TUSHARE,
                     third_code=ts_code,
+                    symbol=None,  # 将在handler中填充
                     trade_date=parsed_date,
                     open=open_val,  # type: ignore
                     high=high_val,  # type: ignore

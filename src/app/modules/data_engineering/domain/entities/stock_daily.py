@@ -19,6 +19,7 @@ class StockDaily(Entity[int | None]):
         id: 主键；新建未持久化时为 None。
         source: 数据来源（如 Tushare）。
         third_code: 第三方数据源中的股票代码。
+        symbol: 股票标准代码标识符。
         trade_date: 交易日期。
         open: 开盘价。
         high: 最高价。
@@ -50,6 +51,7 @@ class StockDaily(Entity[int | None]):
     id: int | None
     source: DataSource
     third_code: str
+    symbol: str | None
     trade_date: date
     open: Decimal
     high: Decimal
