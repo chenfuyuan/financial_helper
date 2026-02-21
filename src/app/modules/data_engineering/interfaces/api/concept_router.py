@@ -40,6 +40,7 @@ class SyncConceptsResponse(BaseModel):
     modified_stocks: int
     deleted_stocks: int
     duration_ms: int
+    failed_concepts: int = 0
 
 
 class ConceptResponse(BaseModel):
@@ -75,6 +76,7 @@ async def sync_concepts(
             modified_stocks=result.modified_stocks,
             deleted_stocks=result.deleted_stocks,
             duration_ms=result.duration_ms,
+            failed_concepts=result.failed_concepts,
         )
     )
 

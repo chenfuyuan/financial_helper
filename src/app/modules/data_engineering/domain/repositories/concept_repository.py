@@ -28,6 +28,11 @@ class ConceptRepository(ABC):
         ...
 
     @abstractmethod
+    async def save_many(self, concepts: list[Concept]) -> list[Concept]:
+        """批量保存概念（新增或更新）。返回含 id 的实体列表。"""
+        ...
+
+    @abstractmethod
     async def delete(self, concept_id: int) -> None:
         """删除指定概念。"""
         ...

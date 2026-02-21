@@ -23,3 +23,4 @@ class SyncConceptsResult:
     modified_stocks: int
     deleted_stocks: int
     duration_ms: int
+    failed_concepts: int = 0  # 新增失败概念计数

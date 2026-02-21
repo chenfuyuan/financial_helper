@@ -78,6 +78,45 @@ class SqlAlchemyConceptRepository(ConceptRepository):
         await self._session.flush()
         return self._to_entity(existing)
 
+    async def save_many(self, concepts: list[Concept]) -> list[Concept]:
+        """批量保存概念（新增或更新）。返回含 id 的实体列表。"""
+        if not concepts:
+            return []
+
+        saved_entities = []
+
+        for concept in concepts:
+            existing: ConceptModel | None = None
+            if concept.id is not None:
+                existing = await self._session.get(ConceptModel, concept.id)
+            if existing is None:
+                stmt = select(ConceptModel).where(
+                    ConceptModel.source == concept.source.value,
+                    ConceptModel.third_code == concept.third_code,
+                )
+                result = await self._session.execute(stmt)
+                existing = result.scalar_one_or_none()
+
+            if existing is None:
+                model = ConceptModel(
+                    source=concept.source.value,
+                    third_code=concept.third_code,
+                    name=concept.name,
+                    content_hash=concept.content_hash,
+                    last_synced_at=concept.last_synced_at,
+                )
+                self._session.add(model)
+                saved_entities.append(model)
+            else:
+                existing.name = concept.name
+                existing.content_hash = concept.content_hash
+                existing.last_synced_at = concept.last_synced_at
+                existing.version = existing.version + 1
+                saved_entities.append(existing)
+
+        await self._session.flush()
+        return [self._to_entity(model) for model in saved_entities]
+
     async def delete(self, concept_id: int) -> None:
         model = await self._session.get(ConceptModel, concept_id)
         if model is not None:

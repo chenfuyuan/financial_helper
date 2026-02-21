@@ -67,6 +67,64 @@ async def test_save_updates_existing_record(engine_and_session) -> None:
 
 
 @pytest.mark.asyncio
+async def test_save_many_creates_and_updates(engine_and_session) -> None:
+    """测试批量保存：新增和更新操作。"""
+    _engine, session_factory = engine_and_session
+
+    # 先保存一个概念用于测试更新
+    async with session_factory() as session:
+        repo = SqlAlchemyConceptRepository(session)
+        existing = await repo.save(_make_concept(third_code="BK0001", name="人工智能"))
+        await session.commit()
+
+    # 准备批量数据：包含新增和更新
+    concepts_to_save = [
+        _make_concept(third_code="BK0001", name="AI概念"),  # 更新现有概念
+        _make_concept(third_code="BK0002", name="新能源"),  # 新增概念
+        _make_concept(third_code="BK0003", name="生物医药"),  # 新增概念
+    ]
+
+    async with session_factory() as session:
+        repo = SqlAlchemyConceptRepository(session)
+        saved_concepts = await repo.save_many(concepts_to_save)
+        await session.commit()
+
+    # 验证结果
+    assert len(saved_concepts) == 3
+    assert all(c.id is not None for c in saved_concepts)
+
+    # 验证更新操作
+    updated_concept = next(c for c in saved_concepts if c.third_code == "BK0001")
+    assert updated_concept.name == "AI概念"
+    assert updated_concept.id == existing.id  # ID应该保持不变
+
+    # 验证新增操作
+    new_concept = next(c for c in saved_concepts if c.third_code == "BK0002")
+    assert new_concept.name == "新能源"
+    assert new_concept.id is not None
+
+    # 验证数据库中的数据
+    async with session_factory() as session:
+        repo = SqlAlchemyConceptRepository(session)
+        all_concepts = await repo.find_all(DataSource.AKSHARE)
+
+    assert len(all_concepts) == 3
+    assert sorted(c.third_code for c in all_concepts) == ["BK0001", "BK0002", "BK0003"]
+
+
+@pytest.mark.asyncio
+async def test_save_many_empty_list(engine_and_session) -> None:
+    """测试批量保存空列表。"""
+    _engine, session_factory = engine_and_session
+    async with session_factory() as session:
+        repo = SqlAlchemyConceptRepository(session)
+        result = await repo.save_many([])
+        await session.commit()
+
+    assert result == []
+
+
+@pytest.mark.asyncio
 async def test_find_all_and_delete(engine_and_session) -> None:
     _engine, session_factory = engine_and_session
     async with session_factory() as session:

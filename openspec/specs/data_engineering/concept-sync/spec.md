@@ -1,74 +1,100 @@
-# concept-sync Specification
+# Spec: 题材板块同步 (concept-sync)
 
-## Purpose
-TBD - created by archiving change akshare-concept-sync. Update Purpose after archive.
+从 AKShare 数据源全量同步题材板块信息及其成分股关系，采用批量操作和独立事务管理，确保数据一致性和性能优化。
+
 ## Requirements
-### Requirement: Sync concept boards and constituent stocks from AKShare
-The system SHALL synchronize concept board information and their constituent stock relationships from AKShare's East Money data source using a two-level hash-based fine-grained incremental synchronization strategy (concept-level → stock-level).
 
-#### Scenario: Full sync when no local data exists
-- **WHEN** the user triggers a concept sync via `POST /api/v1/data-engineering/concepts/sync` and no local concept data exists for source=AKSHARE
-- **THEN** the system fetches all concept boards from AKShare
-- **AND** for each concept, the system fetches constituent stocks
-- **AND** for each constituent stock, the system attempts to match with `StockBasic` (see association scenarios)
-- **AND** the system saves all concepts and stock relationships to the database in a single transaction
-- **AND** the system returns a `SyncConceptsResponse` with counts of new concepts and stocks
+### Requirement: 题材板块全量同步与批量操作
 
-#### Scenario: Incremental sync — concept-level comparison
-- **WHEN** the user triggers a concept sync and local data exists for source=AKSHARE
-- **THEN** the system compares remote vs local concepts by `third_code` key and `content_hash`
-- **AND** new concepts (remote only) are saved, then their stocks are fetched and saved in full
-- **AND** modified concepts (hash differs) are updated, then their stocks undergo stock-level comparison (see next scenario)
-- **AND** unchanged concepts (hash matches) are skipped, only `last_synced_at` is updated
-- **AND** deleted concepts (local only) and all their associated stocks are removed
+系统 SHALL 从 AKShare 全量同步所有题材板块及其成分股关系，采用批量 upsert 操作，避免逐条删除再插入的模式。
 
-#### Scenario: Incremental sync — stock-level comparison for modified concepts
-- **WHEN** a concept is identified as modified during sync
-- **THEN** the system fetches remote constituent stocks for that concept
-- **AND** the system compares remote vs local stocks by `stock_third_code` key and `content_hash`
-- **AND** new stocks are saved, modified stocks are updated, deleted stocks are removed
-- **AND** the stock-level changes are included in the sync result counts
+#### Scenario: 全量同步数据准备
 
-#### Scenario: Associate stocks with StockBasic entity
-- **WHEN** a concept stock is being saved
-- **THEN** the system infers exchange suffix from stock code prefix (6→.SH, 0/3→.SZ, 4/8→.BJ) to construct a `candidate_symbol`
-- **AND** the system first attempts to match `candidate_symbol` against pre-loaded `StockBasic.symbol` map
-- **AND** if match fails, the system attempts to match against pre-loaded `StockBasic.third_code` map (source=TUSHARE)
-- **AND** if both matches fail, the system saves the relationship with `stock_symbol` as NULL and logs a warning
+- **WHEN** 用户通过 `POST /api/v1/data-engineering/concepts/sync` 触发题材同步
+- **THEN** 系统从 AKShare 一次性获取所有题材板块数据
+- **AND** 系统获取本地所有 source=AKSHARE 的题材数据
+- **AND** 系统使用 `third_code` 作为键构建远程和本地数据的内存映射表
+- **AND** 系统从 StockBasic 获取所有已上市股票用于代码匹配
 
-#### Scenario: Handle AKShare API failures gracefully
-- **WHEN** the AKShare API call fails during sync (network error, parsing error, empty response)
-- **THEN** the system throws an `ExternalConceptServiceError`
-- **AND** the entire sync transaction is rolled back (no partial data persisted)
-- **AND** the error is propagated to the caller with appropriate context
+#### Scenario: 批量 upsert 题材板块
 
-#### Scenario: Handle empty AKShare response
-- **WHEN** AKShare returns an empty concept list
-- **THEN** the system treats this as a valid response (not an error)
-- **AND** all local concepts for source=AKSHARE are marked as deleted
-- **AND** the sync result reflects the deletion counts
+- **WHEN** 系统已完成远程和本地题材映射表的准备
+- **THEN** 系统创建待 upsert 的题材列表（所有远程题材）
+- **AND** 对每个远程题材，系统计算内容哈希并设置 `last_synced_at`
+- **AND** 系统使用 `concept_repo.save_many()` 执行批量 upsert 操作
+- **AND** 系统记录处理的题材总数
 
-### Requirement: Content hash calculation for change detection
-The system SHALL calculate content hashes using SHA-256 (truncated to first 16 hex characters) for both Concept and ConceptStock entities to enable efficient change detection during incremental sync.
+#### Scenario: 批量同步题材成分股
 
-#### Scenario: Calculate Concept content hash
-- **WHEN** a Concept entity is being prepared for sync
-- **THEN** the system calculates `sha256(f"{source}|{third_code}|{name}")[:16]`
-- **AND** the hash is stored in the `content_hash` field
+- **WHEN** 所有题材完成批量 upsert
+- **THEN** 对每个题材，系统从 AKShare 获取其成分股数据
+- **AND** 系统使用 symbol 和 third_code 映射表匹配股票
+- **AND** 系统构建包含正确 concept_id 引用的 ConceptStock 实体列表
+- **AND** 系统使用 `concept_stock_repo.save_many()` 执行批量 upsert 操作
+- **AND** 系统记录处理的股票关系总数
 
-#### Scenario: Calculate ConceptStock content hash
-- **WHEN** a ConceptStock entity is being prepared for sync
-- **THEN** the system calculates `sha256(f"{source}|{stock_third_code}|{stock_symbol or ''}")[:16]`
-- **AND** the hash is stored in the `content_hash` field
-- **AND** the hash does NOT include `concept_id` (since new entities have no persisted id yet)
+#### Scenario: 清理过时数据
 
-### Requirement: Delete concepts that no longer exist
-The system SHALL remove concept boards and their relationships when they no longer appear in the AKShare data source.
+- **WHEN** 所有题材完成独立处理后
+- **THEN** 系统识别本地存在但远程数据中不存在的题材
+- **AND** 对每个过时题材，系统在独立事务中删除其 ConceptStock 关系
+- **AND** 系统在同一事务中删除过时的 Concept 实体
+- **AND** 每个过时题材使用独立事务处理
 
-#### Scenario: Detect and remove deleted concepts
-- **WHEN** a sync is performed and some local concepts are not in the AKShare response
-- **THEN** the system identifies these concepts as deleted
-- **AND** the system deletes all associated ConceptStock relationships (via cascade or explicit delete)
-- **AND** the system deletes the Concept entities
-- **AND** the deletion count is included in the sync result
+#### Scenario: 事务管理
+
+- **WHEN** 执行全量同步过程
+- **THEN** 系统对每个题材的处理使用独立事务
+- **AND** 每个事务包含题材 upsert 及其股票关系
+- **AND** 每个事务在题材及其股票处理完成后提交
+- **AND** 如果某个题材的事务失败，仅回滚该题材
+- **AND** 系统继续独立处理其他题材
+- **AND** 系统返回包含失败计数的详细同步结果
+
+#### Scenario: 性能优化
+
+- **WHEN** 处理大量题材数据
+- **THEN** 系统使用批量操作最小化数据库交互次数
+- **AND** 系统以可配置的批次大小处理题材
+- **AND** 系统在关键里程碑记录进度日志
+- **AND** 系统在处理过程中监控内存使用情况
+
+### Requirement: 股票与 StockBasic 实体关联
+
+- **WHEN** 保存题材成分股时
+- **THEN** 系统从股票代码前缀推断交易所后缀（6→.SH, 0/3→.SZ, 4/8→.BJ）构建 `candidate_symbol`
+- **AND** 系统首先尝试将 `candidate_symbol` 与预加载的 `StockBasic.symbol` 映射表匹配
+- **AND** 如果匹配失败，系统尝试与预加载的 `StockBasic.third_code` 映射表匹配（source=TUSHARE）
+- **AND** 如果两次匹配都失败，系统保存关系时将 `stock_symbol` 设为 NULL 并记录警告日志
+
+### Requirement: 优雅处理 AKShare API 故障
+
+- **WHEN** 同步过程中 AKShare API 调用失败（网络错误、解析错误、空响应）
+- **THEN** 系统抛出 `ExternalConceptServiceError`
+- **AND** 系统记录错误日志并在可能的情况下继续处理其他题材
+- **AND** 系统向调用方传播包含适当上下文的错误
+
+### Requirement: 处理 AKShare 空响应
+
+- **WHEN** AKShare 返回空题材列表
+- **THEN** 系统将其视为有效响应（非错误）
+- **AND** 系统将所有本地 source=AKSHARE 的题材标记为已删除
+- **AND** 同步结果反映删除计数
+
+### Requirement: 内容哈希计算用于变更检测
+
+系统 SHALL 为 Concept 和 ConceptStock 实体计算内容哈希，使用 SHA-256（截取前16位十六进制字符），以便在同步过程中进行高效的变更检测。
+
+#### Scenario: 计算 Concept 内容哈希
+
+- **WHEN** 准备同步的 Concept 实体时
+- **THEN** 系统计算 `sha256(f"{source}|{third_code}|{name}")[:16]`
+- **AND** 将哈希存储在 `content_hash` 字段中
+
+#### Scenario: 计算 ConceptStock 内容哈希
+
+- **WHEN** 准备同步的 ConceptStock 实体时
+- **THEN** 系统计算 `sha256(f"{source}|{stock_third_code}|{stock_symbol or ''}")[:16]`
+- **AND** 将哈希存储在 `content_hash` 字段中
+- **AND** 哈希不包含 `concept_id`（因为新实体尚未持久化 id）
 
