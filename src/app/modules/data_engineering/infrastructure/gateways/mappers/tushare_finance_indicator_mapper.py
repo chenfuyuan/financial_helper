@@ -20,8 +20,15 @@ def _d(val: str | int | float | None) -> Decimal | None:
         return None
 
 
-def _dt(val: str | None) -> date | None:
-    return datetime.strptime(val, "%Y%m%d").date() if val else None
+def _dt(val: str | int | float | None) -> date | None:
+    if not val:
+        return None
+    try:
+        # 将数值转换为字符串
+        str_val = str(int(val)) if isinstance(val, float) else str(val)
+        return datetime.strptime(str_val, "%Y%m%d").date()
+    except (ValueError, TypeError):
+        return None
 
 
 class TuShareFinanceIndicatorMapper:
