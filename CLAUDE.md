@@ -11,28 +11,28 @@
 在开始任何开发工作前，请先查阅相关设计文档。文档已按模块化拆分，按需读取：
 
 ### 核心文档（必读）
-- `docs/plans/financial-helper/README.md` - 设计文档总索引 + AI 使用指南
-- `docs/plans/financial-helper/01-overview.md` - 项目概述、技术栈、整体架构、数据流
-- `docs/plans/financial-helper/02-dependencies.md` - 依赖关系图、模块边界约束
+- `docs/design/financial-helper/README.md` - 设计文档总索引 + AI 使用指南
+- `docs/design/financial-helper/01-overview.md` - 项目概述、技术栈、整体架构、数据流
+- `docs/design/financial-helper/02-dependencies.md` - 依赖关系图、模块边界约束
 
 ### 模块文档（按需要读取）
 实现特定模块时，请读取对应的模块设计文档：
-- `docs/plans/financial-helper/modules/foundation.md` - 基础设施层
-- `docs/plans/financial-helper/modules/data-engineering.md` - 数据工程层
-- `docs/plans/financial-helper/modules/llm-gateway.md` - LLM 网关层
-- `docs/plans/financial-helper/modules/knowledge-center.md` - 知识中心
-- `docs/plans/financial-helper/modules/market-insight.md` - 市场洞察
-- `docs/plans/financial-helper/modules/coordinator.md` - 协调器（LangGraph 流程编排）
-- `docs/plans/financial-helper/modules/research.md` - 研究模块
-- `docs/plans/financial-helper/modules/debate.md` - 辩论模块
-- `docs/plans/financial-helper/modules/judge.md` - 决策模块
+- `docs/design/financial-helper/modules/foundation.md` - 基础设施层
+- `docs/design/financial-helper/modules/data-engineering.md` - 数据工程层
+- `docs/design/financial-helper/modules/llm-gateway.md` - LLM 网关层
+- `docs/design/financial-helper/modules/knowledge-center.md` - 知识中心
+- `docs/design/financial-helper/modules/market-insight.md` - 市场洞察
+- `docs/design/financial-helper/modules/coordinator.md` - 协调器（LangGraph 流程编排）
+- `docs/design/financial-helper/modules/research.md` - 研究模块
+- `docs/design/financial-helper/modules/debate.md` - 辩论模块
+- `docs/design/financial-helper/modules/judge.md` - 决策模块
 
 ### 横向关注点（按需要读取）
-- `docs/plans/financial-helper/cross-cutting/error-handling.md` - 错误处理策略
-- `docs/plans/financial-helper/cross-cutting/testing.md` - 测试策略
-- `docs/plans/financial-helper/cross-cutting/security.md` - 安全设计
-- `docs/plans/financial-helper/cross-cutting/performance.md` - 性能优化策略
-- `docs/plans/financial-helper/cross-cutting/operations.md` - 运维与监控
+- `docs/design/financial-helper/cross-cutting/error-handling.md` - 错误处理策略
+- `docs/design/financial-helper/cross-cutting/testing.md` - 测试策略
+- `docs/design/financial-helper/cross-cutting/security.md` - 安全设计
+- `docs/design/financial-helper/cross-cutting/performance.md` - 性能优化策略
+- `docs/design/financial-helper/cross-cutting/operations.md` - 运维与监控
 
 ### AI 工作流建议
 1. **实现新功能**：先读对应模块文档 + 02-dependencies.md + 01-overview.md
