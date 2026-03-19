@@ -1,20 +1,45 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  项目：金融助手系统 — 基于 DDD + 整洁架构的 A 股投资顾问系统
+  技术栈：Python 3.11, FastAPI, SQLAlchemy (async + asyncpg), PostgreSQL, InfluxDB, Neo4j, Redis, Celery, LangGraph
+  领域：A 股投资数据工程、市场洞察、LLM 分析
+  语言要求：所有文档内容必须使用中文（简体）撰写。技术术语（Command, Handler, Repository, Gateway, Entity, spec, artifact 等）和代码标识符保留英文。
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  proposal:
+    - 所有内容使用中文撰写
+    - Why 部分 2-3 句话，聚焦"为什么现在需要做这件事"
+    - What Changes 用列表，每条以动词开头（新增、修改、移除、接入）
+    - Capabilities 的 name 保持 kebab-case 英文，description 用中文
+    - Impact 明确列出受影响的代码模块路径和运行时影响
+  pre_design:
+    - 所有内容使用中文撰写
+    - 按"背景与目标 → 关键设计决策 → 用例与数据流 → 风险与边界 → 待办"组织
+    - 关键设计决策使用表格，含"决策点、选择、理由"三列
+    - 处理流程用编号步骤详细描述
+  design:
+    - 所有内容使用中文撰写
+    - Context 简明扼要，一段即可
+    - Goals / Non-Goals 使用列表，Non-Goals 明确排除范围和理由
+    - Decisions 每条含决策内容 + 决策理由，复杂决策可加备选方案对比
+    - Risks / Trade-offs 用"[风险/权衡] 描述 → 缓解/理由"格式
+    - Migration Plan 按阶段组织，含回滚策略
+  specs:
+    - 所有需求描述和场景描述使用中文撰写
+    - Requirement 标题用中文概括能力要求
+    - 使用 RFC 2119 关键词 MUST / SHALL / SHOULD / MAY，保留英文大写
+    - Scenario 的 WHEN / THEN 关键词保留英文，条件和期望描述用中文
+    - 每个 Requirement 至少包含一个 Scenario
+    - 区分 ADDED / MODIFIED / REMOVED 三种需求变更类型
+    - 每个 Scenario 必须可直接映射为一个测试方法（WHEN → Arrange+Act, THEN → Assert）
+    - Scenario 的条件和预期结果要具体、可验证，避免模糊表述（如"正常工作"）
+  tasks:
+    - 所有内容使用中文撰写
+    - 使用 checkbox 格式：- [ ] 具体描述
+    - 描述要具体可执行，包含涉及的文件路径或模块名
+    - 按依赖顺序排列：domain → application → infrastructure → interfaces → 测试
+    - 大任务拆分为 2 小时以内可完成的子任务
+    - 遵循 TDD 红绿循环：Application 层的每个功能点，先列"编写测试"任务，再列"实现逻辑"任务
+    - 测试任务应标注覆盖 spec 中的哪些 Scenario，格式如"编写 XXX 测试（覆盖 spec Scenario: YYY, ZZZ）"
+    - Infrastructure 层的仓储实现配对集成测试任务

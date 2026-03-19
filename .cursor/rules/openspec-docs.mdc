@@ -1,0 +1,66 @@
+---
+description: OpenSpec 文档规范 — 编辑变更文档时自动加载
+globs: openspec/**/*.md
+alwaysApply: false
+---
+
+# OpenSpec 文档规范
+
+## 语言
+
+- 所有文档内容使用**中文（简体）**撰写
+- 技术术语（Command, Handler, Repository, Gateway, Entity 等）保留英文
+- 代码标识符、文件路径、变量名保留英文原文
+
+## proposal.md
+
+- **Why**：量化痛点（频率、耗时、成本、影响范围），禁止"体验不好""大量"等纯定性描述
+- **In Scope / Out of Scope**：必须包含，明确列出项目边界，杜绝范围蔓延
+- **What Changes**：列表，每条以动词开头（新增、修改、移除）
+- **Capabilities**：name 用 kebab-case 英文，描述用中文
+- **Risks**：表格格式（`风险 | 严重程度 | 概率 | 缓解方案`），至少覆盖 3 个风险，包含至少 1 个非功能性风险（如外部依赖失效、数据依赖不完整）
+
+## spec.md
+
+- **Requirement 标题**：中文描述，MUST 以 RFC 2119 关键词（MUST / SHALL / MAY）开头
+- **Scenario 格式**：三段式 **GIVEN**（前置条件）/ **WHEN**（触发动作）/ **THEN**（期望结果），关键词保留英文大写
+- **覆盖度**：每个 Requirement 至少 1 个正常场景 + 1 个边界/异常场景；整个 spec 至少包含 3 个异常场景（如：网络超时、认证失败、输入校验、数据依赖缺失）
+- **禁止模糊**：不允许"快速""友好""合理"等主观词，必须量化（"响应时间 SHALL < 200ms"、"重试次数 MUST ≤ 3"）
+- **接口契约**：Result / 返回值字段用表格定义（`字段 | 类型 | 说明`）
+- **输入校验**：对外暴露的参数必须有校验需求和对应 Scenario
+- 用 `---` 分隔不同 Requirement，区分 ADDED / MODIFIED / REMOVED
+
+## design.md
+
+- **Goals / Non-Goals**：列表形式，Non-Goals 明确排除范围，与 proposal 的 Out of Scope 对齐
+- **Decisions**：每个决策必须包含 Trade-off 分析（推荐表格：`维度 | 选择方案 | 备选方案`），列出选择理由和已知缺点
+- **Architecture**：包含单点故障分析（组件是否单点、缓解措施）；若有数据流则用 ASCII 图描述
+- **API Schema**：明确定义 Command / Result / Repository 扩展的 dataclass 签名（用 fenced code block）
+- **错误码**：错误场景、异常类型、说明的表格
+- **Risks**：「[风险/权衡] 描述 → 缓解/理由」格式
+- **Migration Plan**：按阶段组织，含回滚策略
+
+## tasks.md
+
+- Checkbox 格式：`- [ ] 具体描述`
+- 描述含文件路径或模块名，按 domain → application → infrastructure → interfaces → 测试排序
+- 单个任务 ≤ 2h 可完成
+- TDD：Application 层功能先列「编写测试」再列「实现逻辑」，测试任务标注覆盖的 spec Scenario
+
+## 三位一体一致性
+
+创建或修改任何工件时，检查以下对齐关系：
+
+| 上游 | 下游 | 对齐要求 |
+|------|------|---------|
+| Proposal In Scope | Spec Requirement | 每项 In Scope 对应至少一个 Requirement |
+| Proposal Risk | Design Risk / Spec Scenario | 每条风险有对应的缓解决策或异常场景 |
+| Spec Requirement | Design Decision | 每个 Requirement 有 Decision 支撑 |
+| Spec Result 字段 | Design API Schema | 字段名、类型完全一致 |
+
+术语全文统一（Command 名、字段名、方法名等不得有别名歧义）。
+
+## 格式
+
+- 结构化对比用表格
+- 代码片段用 fenced code blocks

@@ -95,14 +95,17 @@ After each invocation, show:
 
 The artifact types and their purpose depend on the schema. Use the `instruction` field from the instructions output to understand what to create.
 
-Common artifact patterns:
+**IMPORTANT**: The `.cursor/rules/openspec-docs.mdc` rule auto-loads when editing `openspec/**/*.md` and defines binding quality standards. Follow it strictly.
 
-**spec-driven schema** (proposal → specs → design → tasks):
-- **proposal.md**: Ask user about the change if not clear. Fill in Why, What Changes, Capabilities, Impact.
+Common artifact patterns for **spec-driven schema** (proposal → specs → design → tasks):
+
+- **proposal.md**: Fill in Why (quantified pain points), In Scope / Out of Scope, What Changes, Capabilities, Impact, Risks (table with ≥3 risks).
   - The Capabilities section is critical - each capability listed will need a spec file.
-- **specs/<capability>/spec.md**: Create one spec per capability listed in the proposal's Capabilities section (use the capability name, not the change name).
-- **design.md**: Document technical decisions, architecture, and implementation approach.
+- **specs/<capability>/spec.md**: Create one spec per capability. Every Requirement title starts with MUST/SHALL/MAY. Every Scenario uses GIVEN/WHEN/THEN. Include ≥3 abnormal/edge scenarios across the spec. Define Result fields in a table.
+- **design.md**: Each Decision includes a Trade-off comparison table. Include Architecture (SPOF analysis), API Schema (Command/Result dataclass), error codes table, Migration Plan with rollback.
 - **tasks.md**: Break down implementation into checkboxed tasks.
+
+After creating each artifact, verify cross-artifact consistency (Proposal In Scope → Spec Requirements → Design Decisions, terminology alignment).
 
 For other schemas, follow the `instruction` field from the CLI output.
 

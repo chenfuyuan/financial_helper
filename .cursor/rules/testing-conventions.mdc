@@ -16,11 +16,12 @@ alwaysApply: false
 
 ## TDD 流程
 
-1. 写一个明确失败的测试
-2. `pytest tests/path/test.py::test_name -v` 确认失败
-3. 写最小实现让测试通过
-4. 确认通过
-5. Commit
+1. 从 OpenSpec spec（`openspec/changes/*/specs/*/spec.md` 或 `openspec/specs/`）找到对应 Scenario
+2. 将 Scenario 的 WHEN → Arrange+Act, THEN → Assert，写一个明确失败的测试
+3. `pytest tests/path/test.py::test_name -v` 确认失败
+4. 写最小实现让测试通过
+5. 确认通过
+6. Refactor → 保持绿灯 → Commit
 
 ## 命名
 

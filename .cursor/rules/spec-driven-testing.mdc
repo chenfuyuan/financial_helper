@@ -1,0 +1,57 @@
+---
+description: 从 OpenSpec 规格驱动测试 — 编辑测试代码时自动加载
+globs: tests/**/*.py
+alwaysApply: false
+---
+
+# Spec 驱动测试
+
+编写测试前，先查找对应的 OpenSpec spec 文件作为行为规格的权威来源。
+
+## 查找 spec
+
+1. 当前变更的 spec：`openspec/changes/<change-name>/specs/<capability>/spec.md`
+2. 主线 spec：`openspec/specs/<module>/<capability>/spec.md`
+
+## 映射规则
+
+| Spec 元素 | 测试元素 | 说明 |
+|-----------|---------|------|
+| Requirement | 测试类或逻辑分组 | `### Requirement: 区间计算` → `class TestIncrementRangeDateCalculation` |
+| Scenario | 测试方法 | `#### Scenario: 没有历史数据` → `test_uses_fixed_start_when_no_history` |
+| GIVEN 前置 | Arrange | mock 设置、测试夹具、前置状态准备 |
+| WHEN 条件 | Act | 调用被测方法 |
+| THEN 期望 | Assert | `assert result.start_date == date(2010, 1, 1)` |
+
+## 示例
+
+spec.md：
+```markdown
+#### Scenario: 起始日期晚于结束日期时不执行任何同步
+- **GIVEN** 数据库中最大 trade_date 为 2026-03-18
+- **WHEN** 执行 SyncStockDailyIncrementRange，end_date = 2026-03-17
+- **THEN** 系统 MUST 返回 synced_days = 0 且 synced_records = 0
+```
+
+对应测试：
+```python
+async def test_no_sync_when_start_after_end(self):
+    # GIVEN
+    repo.get_latest_trade_date_by_source.return_value = date(2026, 3, 18)
+    command = SyncStockDailyIncrementRange(end_date=date(2026, 3, 17))
+
+    # WHEN
+    result = await handler.handle(command)
+
+    # THEN
+    assert result.synced_days == 0
+    assert result.synced_records == 0
+    gateway.fetch_daily_all_by_date.assert_not_called()
+```
+
+## 检查清单
+
+- spec 中每个 Scenario 都有对应测试方法
+- GIVEN → Arrange（mock/fixture 设置）, WHEN → Act（调用方法）, THEN → Assert（断言期望）
+- 测试的 assert 直接验证 spec 中 THEN 的每条期望
+- 新增 spec Scenario 时同步新增测试

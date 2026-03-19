@@ -85,6 +85,7 @@ After completing all artifacts, summarize:
 
 **Artifact Creation Guidelines**
 
+- **IMPORTANT**: The `.cursor/rules/openspec-docs.mdc` rule auto-loads when editing `openspec/**/*.md` and defines binding quality standards. Follow it strictly for every artifact.
 - Follow the `instruction` field from `openspec instructions` for each artifact type
 - The schema defines what each artifact should contain - follow it
 - Read dependency artifacts for context before creating new ones
@@ -92,6 +93,12 @@ After completing all artifacts, summarize:
 - **IMPORTANT**: `context` and `rules` are constraints for YOU, not content for the file
   - Do NOT copy `<context>`, `<rules>`, `<project_context>` blocks into the artifact
   - These guide what you write, but should never appear in the output
+
+**Quality checkpoints per artifact type** (spec-driven schema):
+- **proposal.md**: Quantified Why, In Scope/Out of Scope, Risks table (≥3 rows)
+- **spec.md**: MUST/SHALL/MAY titles, GIVEN/WHEN/THEN scenarios, ≥3 abnormal scenarios, Result field table, input validation scenarios
+- **design.md**: Trade-off tables for Decisions, SPOF analysis, API Schema, error codes, Migration Plan with rollback
+- After all artifacts: cross-check consistency (Proposal↔Spec↔Design terminology and coverage)
 
 **Guardrails**
 - Create ALL artifacts needed for implementation (as defined by schema's `apply.requires`)
