@@ -25,6 +25,7 @@ dependencies = [
   "tushare>=1.2.0",
   "akshare>=1.12.0",
   "psutil>=5.9.0",
+  "APScheduler>=3.10.0",
 ]
 
 [project.optional-dependencies]
@@ -77,3 +78,11 @@ containers = [
     "app.shared_kernel",
     "app.modules.data_engineering",
 ]
+
+[[tool.importlinter.contracts]]
+name = "Foundation forbidden imports"
+type = "forbidden"
+modules = ["app.modules.foundation"]
+forbidden_modules = ["app.modules.data_engineering"]
+source_modules = ["app.modules.foundation"]
+import_types = ["import", "from_import"]

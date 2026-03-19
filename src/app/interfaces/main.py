@@ -7,6 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.responses import Response
 
 from app.config import settings
+from app.modules.foundation.application.module_registry import ModuleRegistry
 from app.interfaces.exception_handler import (
     domain_exception_handler,
     general_exception_handler,
@@ -28,6 +29,33 @@ def _register_handlers(mediator: Mediator, db: Database) -> None:
     # 各模块的 command/query 若需通过 Mediator 分发，在此注册
 
 
+def _initialize_scheduler(db: Database) -> tuple[ModuleRegistry, "Scheduler"]:
+    """初始化调度器和模块注册器。
+
+    Args:
+        db: Database 实例，提供 session_factory。
+
+    Returns:
+        (ModuleRegistry, Scheduler) 元组。
+    """
+    from app.modules.foundation.interfaces.scheduler import get_scheduler
+
+    # 创建调度器实例
+    scheduler = get_scheduler()
+
+    # 创建模块注册器并注册所有业务模块的定时任务
+    registry = ModuleRegistry()
+
+    # 注册业务模块的定时任务（传递 session_factory）
+    import app.modules  # noqa: PLC0415
+    app.modules.register_scheduled_tasks(registry, db.session_factory)
+
+    # 将所有任务注册到调度器
+    registry.register_all_to_scheduler(scheduler)
+
+    return registry, scheduler
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     configure_logging(log_level=settings.LOG_LEVEL, app_env=settings.APP_ENV)
@@ -40,7 +68,20 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     _register_handlers(mediator, db)
     app.state.mediator = mediator
 
+    # 初始化调度器
+    module_registry, scheduler = _initialize_scheduler(db)
+    app.state.module_registry = module_registry
+    app.state.scheduler = scheduler
+
+    # 启动调度器
+    scheduler.start()
+    logger.info("Scheduler started")
+
     yield
+
+    # 关闭调度器
+    scheduler.shutdown(wait=True)
+    logger.info("Scheduler shut down")
 
     await db.dispose()
     logger.info("Application shut down")
