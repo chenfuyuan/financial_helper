@@ -1,0 +1,27 @@
+---
+description: 数据库 ORM 模型与 Alembic 迁移规范 — 编辑模型文件时自动加载
+globs: src/**/models/**/*.py
+alwaysApply: false
+---
+
+# 数据库模型规范
+
+## ORM 模型字段顺序
+
+id 最前 → 业务字段居中 → 审计字段（created_at / updated_at / version）最后。
+
+## 领域实体字段
+
+仅包含业务属性，**不**包含审计字段（created_at/updated_at/version）——这些由 ORM 模型和数据库维护。
+
+## Alembic 迁移
+
+`create_table` / `add_column` 的列顺序与 ORM 模型一致。
+
+## 禁止外键约束
+
+数据库表严格禁止 FOREIGN KEY 约束。数据完整性在应用层通过业务逻辑和领域服务维护，确保分库分表扩展能力。
+
+## 类文档
+
+ORM 模型类 docstring 须含 **Attributes** 段，逐字段说明含义（中文）。

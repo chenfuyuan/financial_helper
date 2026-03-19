@@ -42,13 +42,22 @@
 
 ## 代码开发时
 
-**进行代码开发、实现功能、改 Bug、写测试时**，请先阅读：
+开发规范已沉淀为 Cursor Rules（`.cursor/rules/`），编辑匹配文件时自动加载，无需手动阅读：
 
-- **`guide/development-conventions.md`** — 架构、目录约定、数据库规范、命令、关键约束、架构守护、测试与验证等开发规范。
-- 注释要编写的详细
-- 日志要编写的完整，便于排查问题
-- 编辑 `src/**/*.py` 时代入 **`guide/architecture.md`**，编辑 `tests/**/*.py` 时代入 **`guide/testing.md`**。
-- 任务运行到最后，需要运行cicd 保证提交代码到远端通过 cicd
+| Rule | 触发 glob | 职责 |
+|------|----------|------|
+| `architecture-guard` | `src/**/*.py` | DDD 分层、领域建模、文件规则 |
+| `testing-conventions` | `tests/**/*.py` | 测试目录、TDD 流程、反模式 |
+| `logging-standards` | `src/**/*.py` | structlog 日志规范 |
+| `docstring-standards` | `**/*.py` | 注释与 Attributes 文档 |
+| `database-model` | `src/**/models/**/*.py` | ORM 字段顺序、禁止外键 |
+| `dependency-injection` | `src/**/interfaces/**/*.py` | DI 分工、模块注册 |
+
+另有两个 Skills（`.cursor/skills/`）按需触发：
+- **ddd-module-scaffold** — 创建新模块时的脚手架流程
+- **pre-commit-verify** — 提交前验证清单（`make ci` 必须通过才能 commit）
+
+> 原始规范文档保留在 `guide/` 目录供人类阅读，Rules/Skills 是 AI 执行时的权威来源。
 
 ## 节省 Token（AI 操作）
 

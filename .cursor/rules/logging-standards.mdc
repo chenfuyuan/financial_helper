@@ -1,0 +1,41 @@
+---
+description: structlog 日志规范 — 编辑源码时自动加载
+globs: src/**/*.py
+alwaysApply: false
+---
+
+# 日志规范
+
+## 统一入口
+
+```python
+from app.shared_kernel.infrastructure.logging import get_logger
+logger = get_logger(__name__)
+```
+
+## 结构化输出
+
+一律键值形式 `logger.info("消息", key=value)`，禁止 f-string / % 拼接变量到消息字符串。
+
+## 必打日志点
+
+| 位置 | 级别 | 内容 |
+|------|------|------|
+| Handler 入口 | info | 命令/查询名、关键入参（id/日期/范围） |
+| Handler 结束 | info | 结果摘要（成功数、失败数、影响行数） |
+| 关键步骤 | info/debug | 事务提交、批量写入条数、分页进度 |
+| Gateway 请求前 | info/debug | api_name、code/date 等关键参数 |
+| Gateway 请求后 | info/debug | 返回条数、是否为空 |
+| 异常捕获 | error/warning | 业务上下文 + `exc_info=True` |
+
+## 级别选择
+
+- **debug**: 仅排查用
+- **info**: 关键业务节点与上述必打点
+- **warning**: 可恢复异常或降级
+- **error**: 须带堆栈或请求标识
+
+## 禁区
+
+- 不记录密码、令牌、完整请求体
+- 循环/高频路径不打 info（聚合后打一条或用 debug）

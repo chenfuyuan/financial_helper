@@ -1,0 +1,51 @@
+---
+description: 测试目录、命名、TDD 流程与反模式 — 编辑测试代码时自动加载
+globs: tests/**/*.py
+alwaysApply: false
+---
+
+# 测试规范
+
+## 目录
+
+- `tests/unit/` — 领域逻辑，纯 Python，无外部依赖
+  - `shared_kernel/` → `app/shared_kernel/`
+  - `modules/<name>/` → `app/modules/<name>/`，模块内按 `domain/`、`application/` 子目录
+- `tests/integration/` — 多层协作，使用测试数据库（aiosqlite）
+- `tests/api/` — httpx + ASGITransport 调 FastAPI，按 `modules/<name>/` 组织
+
+## TDD 流程
+
+1. 写一个明确失败的测试
+2. `pytest tests/path/test.py::test_name -v` 确认失败
+3. 写最小实现让测试通过
+4. 确认通过
+5. Commit
+
+## 命名
+
+- 文件: `test_<被测对象>.py`
+- 函数: `test_<行为描述>()`
+- 类: `Test<被测类名>`
+
+## 单元测试
+
+- Mock 外部依赖: `AsyncMock(spec=XxxRepository)`
+- 测试领域行为，不测框架
+
+## 集成测试
+
+- `aiosqlite` 内存数据库
+- `conftest.py` fixture 提供 session_factory / UoW
+
+## 接口测试 (tests/api/)
+
+- `api_client` fixture：注入内存 SQLite 与 mediator
+- `httpx.AsyncClient` + `ASGITransport(app=app)`
+- 示例：`tests/api/modules/data_engineering/test_stock_basic_sync_api.py`
+
+## 反模式
+
+- 不测试 Python 语言本身行为
+- 不硬编码数据库连接字符串
+- 不跳过断言（每个 test 至少一个 assert）

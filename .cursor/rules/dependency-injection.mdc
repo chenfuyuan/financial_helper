@@ -1,0 +1,27 @@
+---
+description: FastAPI 依赖注入分工规范 — 编辑接口层代码时自动加载
+globs: src/**/interfaces/**/*.py
+alwaysApply: false
+---
+
+# 依赖注入规范
+
+## 跨模块共享依赖
+
+Database、Mediator、UoW 等仅放在 `app/interfaces/dependencies.py`，由 `main.py` lifespan 挂到 `app.state`。
+
+## 模块内专属依赖
+
+本模块的 Repository、Gateway、Handler 组装放在 `modules/<name>/interfaces/dependencies.py`，通过 `Depends(get_uow)` 从全局获取共享依赖后构造返回。
+
+## Router
+
+只通过 `Depends(...)` 注入，**不在路由函数内手写 new** Gateway/Repository/Handler。
+
+## 模块注册
+
+新增模块在 `app/interfaces/module_registry.py` 的 `_collect_module_routers()` 中追加 Router 与前缀，`main.py` 无需修改。
+
+## 日志配置
+
+`configure_logging(log_level=..., app_env=...)` 通过参数注入，`shared_kernel/infrastructure/logging.py` 不直接 import `app.config`。

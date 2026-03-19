@@ -78,6 +78,7 @@ logs/
 
 .cursor/*
 !.cursor/rules/
+!.cursor/skills/
 .windsurf/
 .agent/
 .agents/
